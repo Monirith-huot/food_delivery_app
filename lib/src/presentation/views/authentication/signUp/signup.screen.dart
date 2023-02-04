@@ -1,36 +1,28 @@
-// ignore_for_file: non_constant_identifier_names
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
+import '../auth.widget.dart';
 
 import 'package:food_delivery_app/src/presentation/customize.dart';
 import 'package:food_delivery_app/src/utils/pallete.dart';
 import 'package:food_delivery_app/src/presentation/screens.dart';
 
-import 'package:heroicons/heroicons.dart';
-import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'dart:io' show Platform;
-
-import '../auth.widget.dart';
-
-class LoginScreen extends StatefulWidget {
+class SignupScreen extends StatefulWidget {
   final Function()? onTap;
-  const LoginScreen({super.key, required this.onTap});
+  const SignupScreen({Key? key, required this.onTap}) : super(key: key);
 
   @override
-  _LoginScreenState createState() => _LoginScreenState();
+  _SignupScreenState createState() => _SignupScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _SignupScreenState extends State<SignupScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
+  final repasswordController = TextEditingController();
 
   var passwordVisible = true;
-  @override
-  void initState() {
-    super.initState();
-  }
+  var repasswordVisible = true;
 
   @override
   void dispose() {
@@ -39,7 +31,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void signUserIn() async {
+  void signUp() async {
     showDialog(
       context: context,
       builder: (context) {
@@ -52,29 +44,20 @@ class _LoginScreenState extends State<LoginScreen> {
       },
     );
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: emailController.text, password: passwordController.text);
-      Navigator.pop(context);
-    } on FirebaseAuthException catch (e) {
-      Navigator.pop(context);
-      if (e.code == "user-not-found") {
-        WrongPasswordMessage();
-      } else if (e.code == "wrong-password") {
-        WrongPasswordMessage();
-      } else {}
-    }
-  }
-
-  void WrongPasswordMessage() {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return PopupWidget(
-          errorMessage: "Login failed!",
-          recommedMessage: "Look like you have enter wrong email or password",
+      if (passwordController.text == repasswordController.text) {
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: emailController.text,
+          password: passwordController.text,
         );
-      },
-    );
+      } else {
+        const PopupWidget(
+            errorMessage: "Passwords dont match",
+            recommedMessage: "Recheck your both passwords again");
+      }
+      Navigator.pop(context);
+    } on FirebaseAuthException {
+      Navigator.pop(context);
+    }
   }
 
   @override
@@ -92,14 +75,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const HeaderWidget(
-                    title: "Welcome back ! 👋",
-                    caption: "Hello again, Glad to see you again!",
+                  HeaderWidget(
+                    title: " Become one of us 🤘",
+                    caption: "Eat your favourite food, at any time",
                   ),
-                  // TextFormField()
                   const SizedBox(
                     height: 50,
                   ),
+
                   const CustomText(
                     text: "Email Address",
                     size: SIZE.textSize,
@@ -190,7 +173,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               color: COLORS.grey),
                         ),
                       ),
-                      hintText: "Email Address",
+                      hintText: "Enter your password",
                       hintStyle: const TextStyle(
                         color: COLORS.grey,
                         fontSize: 14,
@@ -200,27 +183,71 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                   const SizedBox(
-                    height: 30,
-                  ),
-                  GestureDetector(
-                    onTap: () {},
-                    child: Container(
-                      alignment: Alignment.bottomRight,
-                      child: const CustomText(
-                          text: "Forget Password",
-                          size: 12,
-                          color: COLORS.primary,
-                          weight: FontWeight.bold),
-                    ),
+                    height: 50,
                   ),
 
+                  const CustomText(
+                    text: "Comfirm password",
+                    size: SIZE.textSize,
+                    color: COLORS.black,
+                    weight: FontWeight.normal,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+
+                  //NOTES: For passwords
+                  TextFormField(
+                    controller: repasswordController,
+                    obscureText: repasswordVisible,
+                    enabled: true,
+                    decoration: InputDecoration(
+                      enabledBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: COLORS.grey),
+                      ),
+                      focusedBorder: const UnderlineInputBorder(
+                        borderSide: BorderSide(color: COLORS.primary),
+                      ),
+                      focusColor: COLORS.primary,
+                      prefixIconConstraints:
+                          const BoxConstraints(minWidth: 23, maxHeight: 20),
+                      prefixIcon: const Padding(
+                        padding: EdgeInsets.only(right: 20),
+                        child: Icon(
+                          Icons.lock_open,
+                          color: COLORS.grey,
+                        ),
+                      ),
+                      suffixIcon: Padding(
+                        padding: const EdgeInsets.only(left: 20, right: 20),
+                        child: GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              repasswordVisible = !repasswordVisible;
+                            });
+                          },
+                          child: Icon(
+                              repasswordVisible
+                                  ? Icons.remove_red_eye_outlined
+                                  : Icons.visibility_off,
+                              color: COLORS.grey),
+                        ),
+                      ),
+                      hintText: "Re-Enter your password",
+                      hintStyle: const TextStyle(
+                        color: COLORS.grey,
+                        fontSize: 14,
+                        fontFamily: "Product-Sans",
+                      ),
+                    ),
+                  ),
                   const SizedBox(
                     height: 30,
                   ),
                   Center(
                     child: GestureDetector(
                       onTap: () {
-                        signUserIn();
+                        signUp();
                       },
                       child: Container(
                         decoration: BoxDecoration(
@@ -231,7 +258,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         height: SIZE.buttonHeight,
                         alignment: Alignment.center,
                         child: const CustomText(
-                          text: "Login",
+                          text: "Sign up",
                           size: SIZE.textSize,
                           color: COLORS.white,
                           weight: FontWeight.bold,
@@ -249,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       Expanded(child: Divider(color: COLORS.grey)),
                       SizedBox(width: 21),
                       CustomText(
-                          text: "Or Login With",
+                          text: "Or Signup With",
                           size: SIZE.subTextSize,
                           color: COLORS.black,
                           weight: FontWeight.normal),
@@ -283,13 +310,16 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                  // const Spacer(),
                   Expanded(child: Container()),
+                  // BottomWidget(
+                  //     to: LoginScreen(),
+                  //     captionText: "Already have an account ? ",
+                  //     navigationCaption: "Login Now")
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       const CustomText(
-                        text: "Dont have an account ? ",
+                        text: "Already have an account ? ",
                         size: SIZE.subTextSize,
                         weight: FontWeight.normal,
                         color: COLORS.black,
@@ -297,7 +327,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       GestureDetector(
                         onTap: widget.onTap,
                         child: const CustomText(
-                          text: "Signup now ",
+                          text: "Login Now ",
                           size: SIZE.subTextSize,
                           weight: FontWeight.bold,
                           color: COLORS.primary,

@@ -17,18 +17,86 @@ class _GetStartScreenState extends State<GetStartScreen> {
       body: SafeArea(
         child: Center(
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const CustomText(
-                text: "Hello this is me",
-                size: SIZE.headerTextSize,
-                color: COLORS.primary,
-                weight: FontWeight.bold,
+              Image.asset(
+                "assets/images/take_away.png",
+                width: 370,
+                height: 350,
               ),
-              CustomizeButton(
-                to: const LoginScreen(title: "hello"),
+              RichText(
+                text: const TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "Fastest ",
+                      style: TextStyle(
+                        fontSize: SIZE.headerTextSize,
+                        fontFamily: "Product-Sans",
+                        fontWeight: FontWeight.bold,
+                        color: COLORS.black,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'Food',
+                      style: TextStyle(
+                        fontSize: SIZE.headerTextSize,
+                        fontFamily: "Product-Sans",
+                        fontWeight: FontWeight.bold,
+                        color: COLORS.primary,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 5,
+              ),
+              RichText(
+                text: const TextSpan(
+                  children: [
+                    TextSpan(
+                      text: "Delivery ",
+                      style: TextStyle(
+                        fontSize: SIZE.headerTextSize,
+                        fontFamily: "Product-Sans",
+                        fontWeight: FontWeight.bold,
+                        color: COLORS.primary,
+                      ),
+                    ),
+                    TextSpan(
+                      text: 'in Phnom Penh',
+                      style: TextStyle(
+                        fontSize: SIZE.headerTextSize,
+                        fontFamily: "Product-Sans",
+                        fontWeight: FontWeight.bold,
+                        color: COLORS.black,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(
+                height: 30,
+              ),
+              CustomText(
+                text:
+                    "Order your favourite food right now. \n  We are ready to delivery in anytime.",
+                size: SIZE.textSize,
+                color: COLORS.black.withOpacity(0.5),
+                weight: FontWeight.normal,
+              ),
+              const SizedBox(
+                height: 60,
+              ),
+              const CustomizeButtonNavigation(
                 width: SIZE.medimunButtonWidth,
-                child: Container(
-                  child: Text("Hello"),
+                to: AuthScreen(),
+                child: CustomText(
+                  text: "Get Started",
+                  size: SIZE.textSize,
+                  color: COLORS.white,
+                  weight: FontWeight.bold,
                 ),
               ),
             ],
