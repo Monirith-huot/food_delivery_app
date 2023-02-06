@@ -101,7 +101,9 @@ class _HomeScreenState extends State<HomeScreen> {
           _showDrawer
               ? Drawer(
                   child: Container(
-                    decoration: BoxDecoration(color: COLORS.primary),
+                    decoration: BoxDecoration(
+                      color: COLORS.white.withOpacity(0.1),
+                    ),
                     child: Column(
                       children: <Widget>[
                         DrawerHeader(
@@ -110,15 +112,16 @@ class _HomeScreenState extends State<HomeScreen> {
                         Expanded(
                           child: Column(children: <Widget>[
                             ListTile(
-                              title: Text(
-                                'Dealer',
-                                style: TextStyle(
-                                    fontSize: 18.0, color: Colors.white),
+                              title: const CustomText(
+                                text: "Profile",
+                                size: SIZE.textSize,
+                                color: COLORS.primary,
+                                weight: FontWeight.normal,
+                                textAlign: TextAlign.left,
                               ),
-                              leading: Icon(
-                                Icons.person,
-                                size: 20.0,
-                                color: Colors.white,
+                              leading: const HeroIcon(
+                                HeroIcons.user,
+                                color: COLORS.primary,
                               ),
                               onTap: () {
                                 /* Navigator.pop(context);

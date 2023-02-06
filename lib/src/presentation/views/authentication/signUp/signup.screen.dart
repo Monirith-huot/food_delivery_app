@@ -1,12 +1,15 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import '../auth.widget.dart';
 
 import 'package:food_delivery_app/src/presentation/customize.dart';
 import 'package:food_delivery_app/src/utils/pallete.dart';
 import 'package:food_delivery_app/src/presentation/screens.dart';
+
+import '../auth_service/auth_service.dart';
 
 class SignupScreen extends StatefulWidget {
   final Function()? onTap;
@@ -20,6 +23,7 @@ class _SignupScreenState extends State<SignupScreen> {
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
   final repasswordController = TextEditingController();
+  final userNameController = TextEditingController();
 
   var passwordVisible = true;
   var repasswordVisible = true;
@@ -28,10 +32,12 @@ class _SignupScreenState extends State<SignupScreen> {
   void dispose() {
     emailController.dispose();
     passwordController.dispose();
+    repasswordController.dispose();
+    userNameController.dispose();
     super.dispose();
   }
 
-  void signUp() async {
+  Future signUp() async {
     showDialog(
       context: context,
       builder: (context) {
@@ -44,20 +50,102 @@ class _SignupScreenState extends State<SignupScreen> {
       },
     );
     try {
+      //create users for auth
       if (passwordController.text == repasswordController.text) {
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailController.text,
           password: passwordController.text,
         );
+        addUserDetails(
+          userNameController.text.trim(),
+          emailController.text.trim(),
+        );
       } else {
-        const PopupWidget(
-            errorMessage: "Passwords dont match",
-            recommedMessage: "Recheck your both passwords again");
+        erorrMessage(
+            "Passwords dont match", "Recheck your both passwords again");
       }
       Navigator.pop(context);
-    } on FirebaseAuthException {
+    } on FirebaseAuthException catch (e) {
       Navigator.pop(context);
+      if (e.code == "email-already-in-use") {
+        erorrMessage("Look like you already have an account",
+            "You already register with this account. Please login with that gmail");
+      } else if (e.code == 'weak-password') {
+        erorrMessage("Look like your password is a bit weak",
+            "Please choose strong password / Long passwords");
+      } else if (e.code == "invalid-email") {
+        erorrMessage("Look like your gmail is not a right format",
+            "Please recheck your gmail format and retry again !");
+      }
     }
+  }
+
+  Future addUserDetails(String userName, String email) async {
+    FirebaseAuth auth = FirebaseAuth.instance;
+    String uid = auth.currentUser!.uid.toString();
+    await FirebaseFirestore.instance.collection('users').doc(uid).set({
+      "username": userNameController.text,
+      "email": emailController.text,
+    });
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(uid)
+        .collection("favorite")
+        .doc("1")
+        .set({});
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(uid)
+        .collection("order")
+        .doc("1")
+        .set({});
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(uid)
+        .collection("history")
+        .doc("1")
+        .set({});
+  }
+
+  Future<UserCredential> signInWithGoogle() async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: LoadingAnimationWidget.beat(
+            color: COLORS.primary,
+            size: 40,
+          ),
+        );
+      },
+    );
+    try {
+      final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
+      final GoogleSignInAuthentication gAuth = await gUser!.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: gAuth.accessToken,
+        idToken: gAuth.idToken,
+      );
+      final user = await FirebaseAuth.instance.signInWithCredential(credential);
+      Navigator.pop(context);
+      return user;
+    } on FirebaseAuthException catch (e) {
+      rethrow;
+    } on Exception catch (e) {
+      rethrow;
+    }
+  }
+
+  void erorrMessage(String errorMessage, String recommendMessage) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return PopupWidget(
+          errorMessage: errorMessage,
+          recommedMessage: recommendMessage,
+        );
+      },
+    );
   }
 
   @override
@@ -123,7 +211,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
 
                   const SizedBox(
-                    height: 50,
+                    height: 30,
                   ),
 
                   const CustomText(
@@ -183,7 +271,7 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
 
                   const SizedBox(
-                    height: 50,
+                    height: 30,
                   ),
 
                   const CustomText(
@@ -227,10 +315,11 @@ class _SignupScreenState extends State<SignupScreen> {
                             });
                           },
                           child: Icon(
-                              repasswordVisible
-                                  ? Icons.remove_red_eye_outlined
-                                  : Icons.visibility_off,
-                              color: COLORS.grey),
+                            repasswordVisible
+                                ? Icons.remove_red_eye_outlined
+                                : Icons.visibility_off,
+                            color: COLORS.grey,
+                          ),
                         ),
                       ),
                       hintText: "Re-Enter your password",
@@ -241,6 +330,50 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                     ),
                   ),
+                  const SizedBox(
+                    height: 30,
+                  ),
+
+                  const CustomText(
+                    text: "Username",
+                    size: SIZE.textSize,
+                    color: COLORS.black,
+                    weight: FontWeight.normal,
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+
+                  //NOTES: For passwords
+                  TextFormField(
+                    controller: userNameController,
+                    enabled: true,
+                    decoration: const InputDecoration(
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: COLORS.grey),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: COLORS.primary),
+                      ),
+                      focusColor: COLORS.primary,
+                      prefixIconConstraints:
+                          BoxConstraints(minWidth: 23, maxHeight: 20),
+                      prefixIcon: Padding(
+                        padding: EdgeInsets.only(right: 20),
+                        child: Icon(
+                          Icons.person_4_outlined,
+                          color: COLORS.grey,
+                        ),
+                      ),
+                      hintText: "Enter your username",
+                      hintStyle: TextStyle(
+                        color: COLORS.grey,
+                        fontSize: 14,
+                        fontFamily: "Product-Sans",
+                      ),
+                    ),
+                  ),
+
                   const SizedBox(
                     height: 30,
                   ),
@@ -290,23 +423,26 @@ class _SignupScreenState extends State<SignupScreen> {
                   ),
 
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CustomizeButtonNavigation(
-                        bgColor: COLORS.white,
-                        border: true,
-                        width: 170,
-                        to: GetStartScreen(),
-                        child: Image.asset("assets/images/google_icon.png"),
-                      ),
-                      const SizedBox(
-                        width: 30,
-                      ),
-                      CustomizeButtonNavigation(
-                        bgColor: COLORS.white,
-                        border: true,
-                        width: 170,
-                        to: GetStartScreen(),
-                        child: Image.asset("assets/images/facebook_icon.png"),
+                      GestureDetector(
+                        onTap: () {
+                          signInWithGoogle().then((value) => AuthService()
+                              .addUserToFireStore(value.user!.uid,
+                                  value.user!.email, value.user!.displayName));
+                        },
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: COLORS.white,
+                            border: Border.all(
+                                color: COLORS.black.withOpacity(0.5)),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          alignment: Alignment.center,
+                          width: SIZE.medimunButtonWidth,
+                          height: SIZE.buttonHeight,
+                          child: Image.asset("assets/images/google_icon.png"),
+                        ),
                       ),
                     ],
                   ),

@@ -5,8 +5,10 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:food_delivery_app/src/presentation/customize.dart';
+import 'package:food_delivery_app/src/presentation/views/authentication/auth_service/auth_service.dart';
 import 'package:food_delivery_app/src/utils/pallete.dart';
 import 'package:food_delivery_app/src/presentation/screens.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:heroicons/heroicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
@@ -56,21 +58,58 @@ class _LoginScreenState extends State<LoginScreen> {
           email: emailController.text, password: passwordController.text);
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
+      print(e.code);
       Navigator.pop(context);
       if (e.code == "user-not-found") {
-        WrongPasswordMessage();
+        erorrMessage("Login failed !",
+            "Look like you have enter wrong email or password");
       } else if (e.code == "wrong-password") {
-        WrongPasswordMessage();
-      } else {}
+        erorrMessage("Login failed !",
+            "Look like you have enter wrong email or password");
+      } else if (e.code == "user-not-found") {
+        erorrMessage("Account not found",
+            "Look like your account is not found in our database");
+      } else if (e.code == "too-many-requests") {
+        erorrMessage("Too many request", "Maybe try again next time");
+      }
     }
   }
 
-  void WrongPasswordMessage() {
+  Future<UserCredential> signInWithGoogle() async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Center(
+          child: LoadingAnimationWidget.beat(
+            color: COLORS.primary,
+            size: 40,
+          ),
+        );
+      },
+    );
+    try {
+      final GoogleSignInAccount? gUser = await GoogleSignIn().signIn();
+      final GoogleSignInAuthentication gAuth = await gUser!.authentication;
+      final credential = GoogleAuthProvider.credential(
+        accessToken: gAuth.accessToken,
+        idToken: gAuth.idToken,
+      );
+      final user = await FirebaseAuth.instance.signInWithCredential(credential);
+      Navigator.pop(context);
+      return user;
+    } on FirebaseAuthException catch (e) {
+      rethrow;
+    } on Exception catch (e) {
+      rethrow;
+    }
+  }
+
+  void erorrMessage(String errorMessage, String recommedMessage) {
     showDialog(
       context: context,
       builder: (context) {
         return PopupWidget(
-          errorMessage: "Login failed!",
+          errorMessage: errorMessage,
           recommedMessage: "Look like you have enter wrong email or password",
         );
       },
@@ -140,7 +179,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                   const SizedBox(
-                    height: 50,
+                    height: 30,
                   ),
 
                   const CustomText(
@@ -263,23 +302,30 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
 
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CustomizeButtonNavigation(
-                        bgColor: COLORS.white,
-                        border: true,
-                        width: 170,
-                        to: GetStartScreen(),
-                        child: Image.asset("assets/images/google_icon.png"),
-                      ),
-                      const SizedBox(
-                        width: 30,
-                      ),
-                      CustomizeButtonNavigation(
-                        bgColor: COLORS.white,
-                        border: true,
-                        width: 170,
-                        to: GetStartScreen(),
-                        child: Image.asset("assets/images/facebook_icon.png"),
+                      GestureDetector(
+                        onTap: () {
+                          signInWithGoogle().then((value) => AuthService()
+                              .addUserToFireStore(value.user!.uid,
+                                  value.user!.email, value.user!.displayName));
+                        },
+                        // (value) => AuthService().addUserToFireStore(
+                        //     uid: value.user.uid,
+                        //     email: value.user.email,
+                        //     userName: value.user.displayName)),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: COLORS.white,
+                            border: Border.all(
+                                color: COLORS.black.withOpacity(0.5)),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          alignment: Alignment.center,
+                          width: SIZE.medimunButtonWidth,
+                          height: SIZE.buttonHeight,
+                          child: Image.asset("assets/images/google_icon.png"),
+                        ),
                       ),
                     ],
                   ),
