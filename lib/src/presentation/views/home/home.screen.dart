@@ -60,19 +60,60 @@ class _HomeScreenState extends State<HomeScreen> {
                                 size: SIZE.iconsSize,
                               ),
                             ),
+                            const Spacer(),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: const HeroIcon(
+                                    HeroIcons.shoppingBag,
+                                    color: COLORS.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 30),
+                                GestureDetector(
+                                  onTap: () {},
+                                  child: const HeroIcon(
+                                    HeroIcons.heart,
+                                    color: COLORS.white,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ),
-                        CustomText(
+                        const SizedBox(height: 30),
+                        const CustomText(
                           text: "Find your",
                           size: 24,
                           color: COLORS.white,
                           weight: FontWeight.bold,
                         ),
-                        CustomText(
+                        const CustomText(
                           text: "Favourite food 🫕",
                           size: 24,
                           color: COLORS.white,
                           weight: FontWeight.bold,
+                        ),
+                        const SizedBox(height: 30),
+                        Container(
+                          padding: EdgeInsets.only(
+                              left: 30, right: 30, top: 5, bottom: 5),
+                          width: SIZE.bigButtonWidth,
+                          height: SIZE.buttonHeight,
+                          decoration: BoxDecoration(
+                            color: COLORS.white,
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: Row(
+                            children: [
+                              HeroIcon(
+                                HeroIcons.magnifyingGlass,
+                                color: COLORS.grey,
+                              ),
+                              
+                            ],
+                          ),
                         ),
                       ],
                     ),
@@ -130,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               },
                             ),
                             ListTile(
-                              title: Text(
+                              title: const Text(
                                 'Shuffler',
                                 style: TextStyle(
                                     fontSize: 18.0, color: Colors.white),

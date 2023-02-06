@@ -13,7 +13,7 @@ class SIZE {
 
   static const smallButtonWidth = 170.0;
   static const medimunButtonWidth = 300.0;
-  static const bigButtonHeight = 370.0;
+  static const bigButtonWidth = 370.0;
   static const bigPadding = 30.0;
   static const smallPadding = 10.0;
 
