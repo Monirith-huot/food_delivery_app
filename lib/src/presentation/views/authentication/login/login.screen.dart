@@ -1,7 +1,6 @@
 // ignore_for_file: non_constant_identifier_names
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 import 'package:food_delivery_app/src/presentation/customize.dart';
@@ -10,11 +9,11 @@ import 'package:food_delivery_app/src/utils/pallete.dart';
 import 'package:food_delivery_app/src/presentation/screens.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
-import 'package:heroicons/heroicons.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
-import 'dart:io' show Platform;
+import 'package:provider/provider.dart';
 
 import '../auth.widget.dart';
+import 'package:food_delivery_app/src/controllers/controller.dart';
 
 class LoginScreen extends StatefulWidget {
   final Function()? onTap;
@@ -54,8 +53,9 @@ class _LoginScreenState extends State<LoginScreen> {
       },
     );
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      final user = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text, password: passwordController.text);
+      context.read<UUIDController>().adduuid(user.user!.uid);
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       print(e.code);
@@ -95,6 +95,7 @@ class _LoginScreenState extends State<LoginScreen> {
         idToken: gAuth.idToken,
       );
       final user = await FirebaseAuth.instance.signInWithCredential(credential);
+      context.read<UUIDController>().adduuid(user.user!.uid);
       Navigator.pop(context);
       return user;
     } on FirebaseAuthException catch (e) {

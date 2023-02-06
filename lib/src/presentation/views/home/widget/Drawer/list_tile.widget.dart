@@ -19,7 +19,7 @@ class ListTileWidget extends StatelessWidget {
       title: CustomText(
         text: title,
         size: SIZE.textSize,
-        color: COLORS.primary,
+        color: COLORS.black,
         weight: FontWeight.normal,
         textAlign: TextAlign.left,
       ),

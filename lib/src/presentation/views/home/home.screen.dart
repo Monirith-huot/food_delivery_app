@@ -8,6 +8,9 @@ import 'package:food_delivery_app/src/presentation/screens.dart';
 import "package:food_delivery_app/src/presentation/views/home/widget/widget.dart";
 import 'package:heroicons/heroicons.dart';
 
+import 'package:food_delivery_app/src/controllers/controller.dart';
+import 'package:provider/provider.dart';
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -19,7 +22,16 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _showDrawer = false;
 
   @override
+  void initState() {
+    // String uuid = context.watch<UUIDController>().uuid;
+    // print(uuid);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    String uuid = context.watch<UUIDController>().uuid;
+
     return Scaffold(
       body: Stack(
         children: [
@@ -102,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: const EdgeInsets.only(
                                 left: 10, right: 10, top: 5, bottom: 5),
                             child: Row(
-                              children: const [
+                              children: [
                                 HeroIcon(
                                   HeroIcons.magnifyingGlass,
                                   color: COLORS.grey,
@@ -117,6 +129,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: COLORS.grey,
                                   weight: FontWeight.normal,
                                 ),
+                                Image.asset("assets/images/pizza.png"),
                               ],
                             ),
                           ),
@@ -129,6 +142,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   Expanded(
                     child: Container(
+                      width: double.infinity,
                       decoration: const BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.only(
@@ -136,8 +150,16 @@ class _HomeScreenState extends State<HomeScreen> {
                           topRight: Radius.circular(20),
                         ),
                       ),
-                      child: Center(
-                        child: Text("Menu here"),
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            left: 30, right: 30, top: 20, bottom: 20),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            FoodCategoryWidget(),
+                          ],
+                        ),
                       ),
                     ),
                   ),

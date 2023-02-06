@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:food_delivery_app/src/presentation/screens.dart';
+import 'package:food_delivery_app/src/controllers/controller.dart';
 
 import 'firebase_options.dart';
 
@@ -26,20 +27,15 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: AnimatedSplashScreen(
-        duration: 3000,
-        splash: const Image(
-            fit: BoxFit.fill,
-            width: 500,
-            height: 500,
-            image: NetworkImage(
-                "https://images-platform.99static.com//Ba6VdSQsbU4OpiyQEzLi7yHy9KQ=/440x521:1494x1575/fit-in/500x500/99designs-contests-attachments/127/127439/attachment_127439993")),
-        nextScreen: GetStartScreen(),
-        splashTransition: SplashTransition.fadeTransition,
-        pageTransitionType: PageTransitionType.fade,
-        backgroundColor: Colors.white,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(
+          create: (context) => UUIDController(),
+        ),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: GetStartScreen(),
       ),
     );
   }
