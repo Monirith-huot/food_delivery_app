@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:food_delivery_app/src/presentation/customize.dart';
 import 'package:food_delivery_app/src/utils/pallete.dart';
 import 'package:food_delivery_app/src/presentation/screens.dart';
+
+import "package:food_delivery_app/src/presentation/views/home/widget/widget.dart";
 import 'package:heroicons/heroicons.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -14,10 +16,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  void signUserOut() {
-    FirebaseAuth.instance.signOut();
-  }
-
   bool _showDrawer = false;
 
   @override
@@ -96,25 +94,33 @@ class _HomeScreenState extends State<HomeScreen> {
                           weight: FontWeight.bold,
                         ),
                         const SizedBox(height: 30),
-                        Container(
-                          padding: EdgeInsets.only(
-                              left: 30, right: 30, top: 5, bottom: 5),
+                        CustomizeButtonNavigation(
+                          bgColor: COLORS.white,
                           width: SIZE.bigButtonWidth,
-                          height: SIZE.buttonHeight,
-                          decoration: BoxDecoration(
-                            color: COLORS.white,
-                            borderRadius: BorderRadius.circular(10),
+                          to: const SearchScreen(),
+                          child: Padding(
+                            padding: const EdgeInsets.only(
+                                left: 10, right: 10, top: 5, bottom: 5),
+                            child: Row(
+                              children: const [
+                                HeroIcon(
+                                  HeroIcons.magnifyingGlass,
+                                  color: COLORS.grey,
+                                ),
+                                SizedBox(
+                                  width: 10,
+                                ),
+                                CustomText(
+                                  text:
+                                      "Search for your favorite restaurants here",
+                                  size: SIZE.textSize,
+                                  color: COLORS.grey,
+                                  weight: FontWeight.normal,
+                                ),
+                              ],
+                            ),
                           ),
-                          child: Row(
-                            children: [
-                              HeroIcon(
-                                HeroIcons.magnifyingGlass,
-                                color: COLORS.grey,
-                              ),
-                              
-                            ],
-                          ),
-                        ),
+                        )
                       ],
                     ),
                   ),
@@ -139,117 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          _showDrawer
-              ? Drawer(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: COLORS.white.withOpacity(0.1),
-                    ),
-                    child: Column(
-                      children: <Widget>[
-                        DrawerHeader(
-                          child: Text("Drawer header here"),
-                        ),
-                        Expanded(
-                          child: Column(children: <Widget>[
-                            ListTile(
-                              title: const CustomText(
-                                text: "Profile",
-                                size: SIZE.textSize,
-                                color: COLORS.primary,
-                                weight: FontWeight.normal,
-                                textAlign: TextAlign.left,
-                              ),
-                              leading: const HeroIcon(
-                                HeroIcons.user,
-                                color: COLORS.primary,
-                              ),
-                              onTap: () {
-                                /* Navigator.pop(context);
-                      Navigator.of(context).push(new MaterialPageRoute(
-                          builder: (context) => dealerBuilder()));*/
-                              },
-                            ),
-                            ListTile(
-                              title: const Text(
-                                'Shuffler',
-                                style: TextStyle(
-                                    fontSize: 18.0, color: Colors.white),
-                              ),
-                              leading: Icon(
-                                Icons.shuffle,
-                                size: 20.0,
-                                color: Colors.white,
-                              ),
-                              onTap: () {
-                                /*Navigator.pop(context);
-                      Navigator.of(context).push(new MaterialPageRoute(
-                          builder: (context) => shufflerBuilder()));*/
-                              },
-                            ),
-                            ListTile(
-                              title: Text(
-                                'Mistakes',
-                                style: TextStyle(
-                                    fontSize: 18.0, color: Colors.white),
-                              ),
-                              leading: Icon(
-                                Icons.info_outline,
-                                size: 20.0,
-                                color: Colors.white,
-                              ),
-                              onTap: () {
-                                /* Navigator.pop(context);
-                      Navigator.of(context).push(new MaterialPageRoute(
-                          builder: (context) => mistakePage()));*/
-                              },
-                            ),
-                            ListTile(
-                              title: Text(
-                                'Important links',
-                                style: TextStyle(
-                                    fontSize: 18.0, color: Colors.white),
-                              ),
-                              leading: Icon(
-                                Icons.border_color,
-                                size: 20.0,
-                                color: Colors.white,
-                              ),
-                              onTap: () {
-                                /*Navigator.of(context).push(new MaterialPageRoute(
-                          builder: (context) => importantLinks()));*/
-                              },
-                            ),
-                          ]),
-                        ),
-                        Container(
-                          child: Align(
-                            alignment: FractionalOffset.bottomCenter,
-                            child: Column(
-                              children: <Widget>[
-                                Divider(),
-                                ListTile(
-                                    leading: Icon(Icons.settings),
-                                    title: Text('Facebook')),
-                                ListTile(
-                                  leading: Icon(Icons.help),
-                                  title: Text('Instagram'),
-                                  onTap: () {
-                                    signUserOut();
-                                  },
-                                ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              : Container(),
+          _showDrawer ? DrawerWidget() : Container(),
         ],
       ),
     );
