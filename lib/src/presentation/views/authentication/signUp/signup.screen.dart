@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../auth.widget.dart';
 
 import 'package:food_delivery_app/src/presentation/customize.dart';
@@ -85,6 +86,8 @@ class _SignupScreenState extends State<SignupScreen> {
   Future addUserDetails(String userName, String email) async {
     FirebaseAuth auth = FirebaseAuth.instance;
     String uid = auth.currentUser!.uid.toString();
+    final sharedPrefs = await SharedPreferences.getInstance();
+    sharedPrefs.setString('uuid', uid);
     context.read<UUIDController>().adduuid(uid);
     await FirebaseFirestore.instance.collection('users').doc(uid).set({
       "username": userNameController.text,
@@ -130,7 +133,9 @@ class _SignupScreenState extends State<SignupScreen> {
         idToken: gAuth.idToken,
       );
       final user = await FirebaseAuth.instance.signInWithCredential(credential);
-      context.read<UUIDController>().adduuid(user.user!.uid);
+      final sharedPrefs = await SharedPreferences.getInstance();
+      sharedPrefs.setString('uuid', user.user!.uid);
+      // context.read<UUIDController>().adduuid(user.user!.uid);
       Navigator.pop(context);
       return user;
     } on FirebaseAuthException catch (e) {

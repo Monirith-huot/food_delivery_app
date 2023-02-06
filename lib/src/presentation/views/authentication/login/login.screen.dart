@@ -11,6 +11,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../auth.widget.dart';
 import 'package:food_delivery_app/src/controllers/controller.dart';
@@ -55,7 +56,10 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final user = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text, password: passwordController.text);
-      context.read<UUIDController>().adduuid(user.user!.uid);
+      final sharedPrefs = await SharedPreferences.getInstance();
+      sharedPrefs.setString('uuid', user.user!.uid);
+
+      // context.read<UUIDController>().adduuid(user.user!.uid);
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       print(e.code);
@@ -75,6 +79,8 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  // final sharedPrefs = await SharedPreferences.getInstance();
+  // sharedPrefs.setString('uuid', user.user!.uid);
   Future<UserCredential> signInWithGoogle() async {
     showDialog(
       context: context,
@@ -95,12 +101,13 @@ class _LoginScreenState extends State<LoginScreen> {
         idToken: gAuth.idToken,
       );
       final user = await FirebaseAuth.instance.signInWithCredential(credential);
-      context.read<UUIDController>().adduuid(user.user!.uid);
+      final sharedPrefs = await SharedPreferences.getInstance();
+      sharedPrefs.setString('uuid', user.user!.uid);
       Navigator.pop(context);
       return user;
     } on FirebaseAuthException catch (e) {
       rethrow;
-    } on Exception catch (e) {
+  } on Exception catch (e) {
       rethrow;
     }
   }

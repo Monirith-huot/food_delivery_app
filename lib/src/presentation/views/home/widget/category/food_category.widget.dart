@@ -16,6 +16,8 @@ class _FoodCategoryWidgetState extends State<FoodCategoryWidget> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         CustomText(
           text: "Categories",
@@ -23,7 +25,10 @@ class _FoodCategoryWidgetState extends State<FoodCategoryWidget> {
           color: COLORS.black,
           weight: FontWeight.bold,
         ),
-        // CategoriesView(),
+        const SizedBox(
+          height: 20,
+        ),
+        CategoriesView(),
       ],
     );
   }

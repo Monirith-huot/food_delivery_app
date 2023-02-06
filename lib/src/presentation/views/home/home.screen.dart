@@ -10,6 +10,7 @@ import 'package:heroicons/heroicons.dart';
 
 import 'package:food_delivery_app/src/controllers/controller.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -19,19 +20,25 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  String? uuid = "";
   bool _showDrawer = false;
 
   @override
   void initState() {
-    // String uuid = context.watch<UUIDController>().uuid;
-    // print(uuid);
+    _getDataFromSharedPreferences();
     super.initState();
+  }
+
+  void _getDataFromSharedPreferences() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    setState(() {
+      uuid = preferences.getString('uuid');
+      print("share" + uuid!);
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    String uuid = context.watch<UUIDController>().uuid;
-
     return Scaffold(
       body: Stack(
         children: [
@@ -114,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             padding: const EdgeInsets.only(
                                 left: 10, right: 10, top: 5, bottom: 5),
                             child: Row(
-                              children: [
+                              children: const [
                                 HeroIcon(
                                   HeroIcons.magnifyingGlass,
                                   color: COLORS.grey,
@@ -129,7 +136,6 @@ class _HomeScreenState extends State<HomeScreen> {
                                   color: COLORS.grey,
                                   weight: FontWeight.normal,
                                 ),
-                                Image.asset("assets/images/pizza.png"),
                               ],
                             ),
                           ),
