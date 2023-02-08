@@ -32,7 +32,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
           padding: const EdgeInsets.all(15),
           child: Column(
             children: <Widget>[
-              DrawerHeader(
+              const DrawerHeader(
                 child: Text("Drawer header here"),
               ),
               Expanded(
@@ -111,22 +111,20 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                   ],
                 ),
               ),
-              Container(
-                child: Align(
-                  alignment: FractionalOffset.bottomCenter,
-                  child: Column(
-                    children: <Widget>[
-                      Divider(),
-                      ListTileWidget(
-                        title: "Log out",
-                        icon: HeroIcons.arrowLeftOnRectangle,
-                        onTap: () => signUserOut(),
-                      ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                    ],
-                  ),
+              Align(
+                alignment: FractionalOffset.bottomCenter,
+                child: Column(
+                  children: <Widget>[
+                    Divider(),
+                    ListTileWidget(
+                      title: "Log out",
+                      icon: HeroIcons.arrowLeftOnRectangle,
+                      onTap: () => signUserOut(),
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
+                  ],
                 ),
               ),
             ],

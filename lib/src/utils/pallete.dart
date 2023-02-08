@@ -16,7 +16,6 @@ class SIZE {
   static const bigButtonWidth = 370.0;
   static const bigPadding = 30.0;
   static const smallPadding = 10.0;
-
   static const popUpHeight = 100.0;
 }
 
