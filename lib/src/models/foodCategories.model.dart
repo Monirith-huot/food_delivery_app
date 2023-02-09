@@ -1,9 +1,28 @@
-import 'food.model.dart';
+import "package:food_delivery_app/src/models/model.dart";
 
 class FoodCategory {
-  final String cId;
-  final String cName;
-  final List<Food> cFood;
+  FoodCategory({
+    required this.name,
+    required this.food,
+  });
 
-  FoodCategory({required this.cId, required this.cName, required this.cFood});
+  final String? name;
+  final Food? food;
+
+  factory FoodCategory.fromJson(Map<String, dynamic> json) {
+    return FoodCategory(
+      name: json["name"],
+      food: json["food"] == null ? null : Food.fromJson(json["food"]),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "name": name,
+        "food": food?.toJson(),
+      };
+
+  @override
+  String toString() {
+    return "$name, $food, ";
+  }
 }
