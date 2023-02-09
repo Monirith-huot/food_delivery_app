@@ -20,7 +20,37 @@ class _SpecialOfferCardWidgetState extends State<SpecialOfferCardWidget> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        
+        if (widget.restaurant["food_categories"] == null &&
+            widget.restaurant[" food_categories"] == null) {
+          // print();
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MenuScreen(
+                foodCategory: widget.restaurant["food_category"],
+              ),
+            ),
+          );
+        } else if (widget.restaurant["food_categories"] == null &&
+            widget.restaurant["food_category"] == null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MenuScreen(
+                foodCategory: widget.restaurant[" food_categories"],
+              ),
+            ),
+          );
+        } else {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MenuScreen(
+                foodCategory: widget.restaurant["food_categories"],
+              ),
+            ),
+          );
+        }
       },
       child: Stack(
         children: [
@@ -40,6 +70,7 @@ class _SpecialOfferCardWidgetState extends State<SpecialOfferCardWidget> {
                   alignment: Alignment.center,
                   fit: BoxFit.fill,
                   height: 75,
+                  width: double.infinity,
                 ),
               ),
               const SizedBox(
@@ -114,16 +145,21 @@ class _SpecialOfferCardWidgetState extends State<SpecialOfferCardWidget> {
                 height: 20,
                 child: GestureDetector(
                   onTap: () {
-                    // context
-                    //     .read<FavoriteLogic>()
-                    //     .addToFavorite(widget.restaurant);
                   },
-                  child: const Center(
-                    child: HeroIcon(
-                      HeroIcons.heart,
-                      size: SIZE.smallIconSize,
-                      color: COLORS.primary,
-                    ),
+                  child: Center(
+
+                    child: widget.restaurant['isFavorite'] == false
+                        ? const HeroIcon(
+                            HeroIcons.heart,
+                            size: SIZE.smallIconSize,
+                            color: COLORS.primary,
+                          )
+                        : const HeroIcon(
+                            HeroIcons.heart,
+                            size: SIZE.smallIconSize,
+                            style: HeroIconStyle.solid,
+                            color: COLORS.primary,
+                          ),
                   ),
                 ),
               ),

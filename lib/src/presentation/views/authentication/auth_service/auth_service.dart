@@ -28,25 +28,10 @@ class AuthService {
     await FirebaseFirestore.instance.collection('users').doc(uid).set({
       "username": userName,
       "email": email,
+      "order": [],
+      "history": [],
+      "favorite": [],
     });
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(uid)
-        .collection("favorite")
-        .doc("1")
-        .set({});
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(uid)
-        .collection("order")
-        .doc("1")
-        .set({});
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(uid)
-        .collection("history")
-        .doc("1")
-        .set({});
     return true;
   }
 }

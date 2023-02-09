@@ -21,7 +21,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  String? uuid = "";
+  String uuid = "";
   bool _showDrawer = false;
 
   @override
@@ -33,8 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
   void _getDataFromSharedPreferences() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
-      uuid = preferences.getString('uuid');
-      print("share" + uuid!);
+      uuid = preferences.getString('uuid')!;
     });
   }
 
@@ -54,9 +53,11 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               GestureDetector(
                 onTap: () {
-                  setState(() {
-                    _showDrawer = false;
-                  });
+                  _showDrawer == true
+                      ? setState(() {
+                          _showDrawer = false;
+                        })
+                      : null;
                 },
                 child: Container(
                   width: double.infinity,
@@ -65,10 +66,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       const SizedBox(
-                        height: 30,
+                        height: 50,
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(30),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -99,7 +100,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                     const SizedBox(width: 30),
                                     GestureDetector(
-                                      onTap: () {},
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                FavoriteScreen(uuid: uuid),
+                                          ),
+                                        );
+                                      },
                                       child: const HeroIcon(
                                         HeroIcons.heart,
                                         color: COLORS.white,
@@ -167,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             ),
                           ),
                           child: Padding(
-                            padding: EdgeInsets.only(
+                            padding: const EdgeInsets.only(
                                 left: 30, right: 30, top: 10, bottom: 10),
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.start,
@@ -177,6 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 const SizedBox(
                                   height: 10,
                                 ),
+
                                 //Spcial offer
                                 Column(
                                   children: [
@@ -214,12 +224,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                           Map<String, dynamic> data = document
                                               .data() as Map<String, dynamic>;
 
-                                          return Container(
-                                            margin: EdgeInsets.only(right: 30),
-                                            height: 150,
-                                            width: SIZE.cardWidth,
-                                            child: SpecialOfferCardWidget(
-                                              restaurant: data,
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                                right: 50),
+                                            child: Container(
+                                              height: 150,
+                                              width: SIZE.cardWidth,
+                                              child: SpecialOfferCardWidget(
+                                                restaurant: data,
+                                              ),
                                             ),
                                           );
                                         }).toList(),
@@ -251,7 +264,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ],
                                     ),
-                                    SizedBox(
+                                    Container(
                                       height: 150,
                                       child: ListView(
                                         scrollDirection: Axis.horizontal,
@@ -260,12 +273,16 @@ class _HomeScreenState extends State<HomeScreen> {
                                           Map<String, dynamic> data = document
                                               .data()! as Map<String, dynamic>;
 
-                                          return Container(
-                                            margin: EdgeInsets.only(right: 30),
-                                            height: 150,
-                                            width: SIZE.cardWidth,
-                                            child: SpecialOfferCardWidget(
-                                              restaurant: data,
+                                          return Padding(
+                                            padding: const EdgeInsets.only(
+                                              right: 50,
+                                            ),
+                                            child: Container(
+                                              height: 150,
+                                              width: SIZE.cardWidth,
+                                              child: SpecialOfferCardWidget(
+                                                restaurant: data,
+                                              ),
                                             ),
                                           );
                                         }).toList(),

@@ -12,3 +12,5 @@ export "package:food_delivery_app/src/presentation/views/help_center/help_center
 export "package:food_delivery_app/src/presentation/views/term_condition/term_condition.screen.dart";
 export "package:food_delivery_app/src/presentation/views/data_policy/data_polity.screen.dart";
 export "package:food_delivery_app/src/presentation/views/profile/profile.screen.dart";
+export "package:food_delivery_app/src/presentation/views/menu/menu.screen.dart";
+export "package:food_delivery_app/src/presentation/views/favorite/favorite.screen.dart";
