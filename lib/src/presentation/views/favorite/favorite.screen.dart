@@ -18,8 +18,6 @@ class FavoriteScreen extends StatefulWidget {
 }
 
 class _FavoriteScreenState extends State<FavoriteScreen> {
-
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<DocumentSnapshot>(
@@ -58,7 +56,24 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                   color: COLORS.primary,
                 ),
                 onTap: () {
-                  Navigator.pop(context);
+                  showDialog(
+                      context: context,
+                      builder: (context) {
+                        return AlertAction(
+                            title: "Remove all favorites !! ",
+                            description:
+                                "This action will remove all your favorite restaurants",
+                            onTap: () async {
+                              FirebaseFirestore.instance
+                                  .collection("users")
+                                  .doc(widget.uuid)
+                                  .update(
+                                {
+                                  "favorite": [],
+                                },
+                              );
+                            });
+                      });
                 },
               ),
             ],
@@ -76,7 +91,6 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                             .snapshots(),
                         builder: (BuildContext context,
                             AsyncSnapshot<DocumentSnapshot> snapshot) {
-                          print(snapshot.data);
                           if (snapshot.hasError) {
                             return Text('Something went wrong');
                           }
@@ -86,9 +100,13 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                             return Text("Loading");
                           }
 
-                          return SpecialOfferCardWidget(
-                              restaurant: snapshot.data!.data()
-                                  as Map<String, dynamic>);
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 30),
+                            child: SpecialOfferCardWidget(
+                                uuid: widget.uuid,
+                                restaurant: snapshot.data!.data()
+                                    as Map<String, dynamic>),
+                          );
                         },
                       );
                     },
@@ -118,124 +136,3 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
     );
   }
 }
-
-
-//  Row(
-//                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                   children: [
-                    // GestureDetector(
-                    //   child: const HeroIcon(
-                    //     HeroIcons.chevronLeft,
-                    //     color: COLORS.primary,
-                    //   ),
-                    //   onTap: () {
-                    //     Navigator.pop(context);
-                    //   },
-                    // ),
-//                     const CustomText(
-//                       text: "Favorite",
-//                       size: SIZE.titleTextSize,
-//                       color: COLORS.primary,
-//                       weight: FontWeight.normal,
-//                     ),
-//                     GestureDetector(
-//                       child: const HeroIcon(
-//                         HeroIcons.trash,
-//                         color: COLORS.primary,
-//                       ),
-//                       onTap: () {
-//                         Navigator.pop(context);
-//                       },
-//                     ),
-//                   ],
-//                 ),
-
-// return ListView(
-//   children: snapshot.data!.docs.map((DocumentSnapshot document) {
-//     Map<String, dynamic> data =
-//         document.data()! as Map<String, dynamic>;
-//     return ListTile(
-//       title: Text(data['full_name']),
-//       subtitle: Text(data['company']),
-//     );
-//   }).toList(),
-// );
-
-// return StreamBuilder<QuerySnapshot>(
-//     stream: FirebaseFirestore.instance
-//         .collection("users")
-//         .doc("documentID")
-//         .snapshots(),
-//     builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-//       if (snapshot.hasError) {
-//         return Text('Something went wrong');
-//       }
-//       if (snapshot.connectionState == ConnectionState.waiting) {
-//         return Text("Loading");
-//       }
-//       return Scaffold(
-//         body: Padding(
-//           padding: EdgeInsets.all(30),
-//           child: Column(
-//             children: [
-//               const SizedBox(
-//                 height: 50,
-//               ),
-//               Row(
-//                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-//                 children: [
-//                   GestureDetector(
-//                     child: const HeroIcon(
-//                       HeroIcons.chevronLeft,
-//                       color: COLORS.primary,
-//                     ),
-//                     onTap: () {
-//                       Navigator.pop(context);
-//                     },
-//                   ),
-//                   const CustomText(
-//                     text: "Favorite",
-//                     size: SIZE.titleTextSize,
-//                     color: COLORS.primary,
-//                     weight: FontWeight.normal,
-//                   ),
-//                   GestureDetector(
-//                     child: const HeroIcon(
-//                       HeroIcons.trash,
-//                       color: COLORS.primary,
-//                     ),
-//                     onTap: () {
-//                       Navigator.pop(context);
-//                     },
-//                   ),
-//                 ],
-//               ),
-//               Container(
-//                 height: 150,
-//                 child: ListView(
-//                   scrollDirection: Axis.horizontal,
-//                   children:
-//                       snapshot.data!.docs.map((DocumentSnapshot document) {
-//                     String data = document.data()! as String;
-//                     print(data);
-//                     return Padding(
-//                       padding: const EdgeInsets.only(
-//                         right: 50,
-//                       ),
-//                       child: Container(
-//                         height: 150,
-//                         width: SIZE.cardWidth,
-//                         // child: SpecialOfferCardWidget(
-//                         //   restaurant: data,
-//                         // ),
-//                         child: Container(),
-//                       ),
-//                     );
-//                   }).toList(),
-//                 ),
-//               ),
-//             ],
-//           ),
-//         ),
-//       );
-//     });

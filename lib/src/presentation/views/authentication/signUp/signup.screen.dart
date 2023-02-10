@@ -92,25 +92,10 @@ class _SignupScreenState extends State<SignupScreen> {
     await FirebaseFirestore.instance.collection('users').doc(uid).set({
       "username": userNameController.text,
       "email": emailController.text,
+      "favorite": [],
+      "history" : [],
+      "order": [],
     });
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(uid)
-        .collection("favorite")
-        .doc("1")
-        .set({});
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(uid)
-        .collection("order")
-        .doc("1")
-        .set({});
-    await FirebaseFirestore.instance
-        .collection("users")
-        .doc(uid)
-        .collection("history")
-        .doc("1")
-        .set({});
   }
 
   Future<UserCredential> signInWithGoogle() async {

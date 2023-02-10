@@ -231,6 +231,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               height: 150,
                                               width: SIZE.cardWidth,
                                               child: SpecialOfferCardWidget(
+                                                uuid: uuid,
                                                 restaurant: data,
                                               ),
                                             ),
@@ -281,6 +282,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                               height: 150,
                                               width: SIZE.cardWidth,
                                               child: SpecialOfferCardWidget(
+                                                uuid: uuid,
                                                 restaurant: data,
                                               ),
                                             ),
