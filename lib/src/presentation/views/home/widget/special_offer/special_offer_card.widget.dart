@@ -45,6 +45,9 @@ class _SpecialOfferCardWidgetState extends State<SpecialOfferCardWidget> {
                 MaterialPageRoute(
                   builder: (context) => MenuScreen(
                     foodCategory: widget.restaurant["food_category"],
+                    restaurantImage: widget.restaurant["image"],
+                    restaurantName: widget.restaurant["name"],
+                    discount: widget.restaurant["discount"],
                   ),
                 ),
               );
@@ -55,6 +58,9 @@ class _SpecialOfferCardWidgetState extends State<SpecialOfferCardWidget> {
                 MaterialPageRoute(
                   builder: (context) => MenuScreen(
                     foodCategory: widget.restaurant[" food_categories"],
+                    restaurantImage: widget.restaurant["image"],
+                    restaurantName: widget.restaurant["name"],
+                    discount: widget.restaurant["discount"],
                   ),
                 ),
               );
@@ -64,6 +70,9 @@ class _SpecialOfferCardWidgetState extends State<SpecialOfferCardWidget> {
                 MaterialPageRoute(
                   builder: (context) => MenuScreen(
                     foodCategory: widget.restaurant["food_categories"],
+                    restaurantImage: widget.restaurant["image"],
+                    restaurantName: widget.restaurant["name"],
+                    discount: widget.restaurant["discount"],
                   ),
                 ),
               );
@@ -208,7 +217,6 @@ class _SpecialOfferCardWidgetState extends State<SpecialOfferCardWidget> {
                         ),
                         child: Container(
                           color: COLORS.primary,
-            
                           child: GestureDetector(
                             onTap: () {
                               // context
@@ -220,7 +228,7 @@ class _SpecialOfferCardWidgetState extends State<SpecialOfferCardWidget> {
                                 padding: const EdgeInsets.all(5),
                                 child: CustomText(
                                   text: widget.restaurant['discount'] +
-                                      "on selected items",
+                                      " on selected items",
                                   size: SIZE.subTextSize,
                                   color: COLORS.white,
                                   weight: FontWeight.normal,

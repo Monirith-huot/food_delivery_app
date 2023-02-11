@@ -15,21 +15,24 @@ class CustomText extends StatelessWidget {
       required this.color,
       required this.weight,
       this.maxLines = 1,
-      this.textAlign = TextAlign.center,
+      this.textAlign = TextAlign.start,
       this.letterSpacing = 1})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      text,
-      // maxLines: maxLines,
-      textAlign: textAlign,
-      style: TextStyle(
-        fontSize: size,
-        fontWeight: weight,
-        color: color,
-        fontFamily: "Product-Sans",
+    return Container(
+      child: Text(
+        text,
+        // maxLines: maxLines,
+        textAlign: textAlign,
+        softWrap: true,
+        style: TextStyle(
+          fontSize: size,
+          fontWeight: weight,
+          color: color,
+          fontFamily: "Product-Sans",
+        ),
       ),
     );
   }
