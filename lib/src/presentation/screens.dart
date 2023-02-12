@@ -14,3 +14,4 @@ export "package:food_delivery_app/src/presentation/views/data_policy/data_polity
 export "package:food_delivery_app/src/presentation/views/profile/profile.screen.dart";
 export "package:food_delivery_app/src/presentation/views/menu/menu.screen.dart";
 export "package:food_delivery_app/src/presentation/views/favorite/favorite.screen.dart";
+export "package:food_delivery_app/src/presentation/views/splash/splash.screen.dart";

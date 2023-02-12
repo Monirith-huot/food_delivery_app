@@ -135,7 +135,14 @@ class _HomeScreenState extends State<HomeScreen> {
                             CustomizeButtonNavigation(
                               bgColor: COLORS.white,
                               width: SIZE.bigButtonWidth,
-                              to: const SearchScreen(),
+                              //create Navigator push to search screen
+                              navigation: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      SearchScreen(),
+                                ),
+                              ),
                               child: Padding(
                                 padding: const EdgeInsets.only(
                                     left: 10, right: 10, top: 5, bottom: 5),

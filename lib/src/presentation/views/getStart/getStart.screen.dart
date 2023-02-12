@@ -89,9 +89,14 @@ class _GetStartScreenState extends State<GetStartScreen> {
               const SizedBox(
                 height: 60,
               ),
-              const CustomizeButtonNavigation(
+              CustomizeButtonNavigation(
                 width: SIZE.medimunButtonWidth,
-                to: AuthScreen(),
+                navigation: () => Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => AuthScreen(),
+                  ),
+                ),
                 child: CustomText(
                   text: "Get Started",
                   size: SIZE.textSize,

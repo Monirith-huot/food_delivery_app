@@ -7,7 +7,7 @@ class CustomizeButtonNavigation extends StatelessWidget {
   final Color? bgColor;
   final double? radius;
   final Widget child;
-  final Widget to;
+  final VoidCallback navigation;
   final AlignmentGeometry? alignment;
   final bool border;
   const CustomizeButtonNavigation({
@@ -18,19 +18,14 @@ class CustomizeButtonNavigation extends StatelessWidget {
     this.radius = SIZE.radius,
     required this.child,
     this.alignment = Alignment.center,
-    required this.to,
     this.border = false,
+    required this.navigation,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => to,
-        ),
-      ),
+      onTap: navigation,
       child: Container(
         decoration: BoxDecoration(
           color: bgColor,

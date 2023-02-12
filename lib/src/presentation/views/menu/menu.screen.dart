@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:badges/badges.dart';
 import 'package:vertical_scrollable_tabview/vertical_scrollable_tabview.dart';
 
-import 'widget/categorySelection.dart';
+import 'widget/categorySelection.widget.dart';
 
 import 'package:food_delivery_app/src/presentation/customize.dart';
 import 'package:food_delivery_app/src/utils/pallete.dart';
@@ -55,7 +55,8 @@ class _MenuScreenState extends State<MenuScreen>
         verticalScrollPosition: VerticalScrollPosition.begin,
         eachItemChild: (object, index) => GestureDetector(
           onTap: () {},
-          child: CategorySelection(
+          child: CategorySelectionWidget(
+            discount: widget.discount,
             eachCategoryFood: object["food"],
             eachCategoryName: object['name'],
           ),
