@@ -14,13 +14,17 @@ class MenuScreen extends StatefulWidget {
   final String restaurantName;
   final String restaurantImage;
   final String discount;
-  const MenuScreen(
-      {Key? key,
-      required this.foodCategory,
-      required this.restaurantName,
-      required this.restaurantImage,
-      required this.discount})
-      : super(key: key);
+  final String restaurantId;
+  final String userId;
+  const MenuScreen({
+    Key? key,
+    required this.foodCategory,
+    required this.restaurantName,
+    required this.restaurantImage,
+    required this.discount,
+    required this.restaurantId,
+    required this.userId,
+  }) : super(key: key);
 
   @override
   _MenuScreenState createState() => _MenuScreenState();
@@ -45,8 +49,9 @@ class _MenuScreenState extends State<MenuScreen>
 
   @override
   Widget build(BuildContext context) {
+    print(widget.restaurantId);
     var top = 259.0;
-    // print(widget.foodCategory);
+    print(widget.foodCategory);
     return Scaffold(
       backgroundColor: Colors.white,
       body: VerticalScrollableTabView(
@@ -56,6 +61,8 @@ class _MenuScreenState extends State<MenuScreen>
         eachItemChild: (object, index) => GestureDetector(
           onTap: () {},
           child: CategorySelectionWidget(
+            userId: widget.userId,
+            restaurantId: widget.restaurantId,
             discount: widget.discount,
             eachCategoryFood: object["food"],
             eachCategoryName: object['name'],

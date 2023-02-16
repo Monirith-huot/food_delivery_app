@@ -57,23 +57,26 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
                 ),
                 onTap: () {
                   showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertAction(
-                            title: "Remove all favorites !! ",
-                            description:
-                                "This action will remove all your favorite restaurants",
-                            onTap: () async {
-                              FirebaseFirestore.instance
-                                  .collection("users")
-                                  .doc(widget.uuid)
-                                  .update(
-                                {
-                                  "favorite": [],
-                                },
-                              );
-                            });
-                      });
+                    context: context,
+                    builder: (context) {
+                      return AlertAction(
+                        title: "Remove all favorites !! ",
+                        description:
+                            "This action will remove all your favorite restaurants",
+                        otherPop: false,
+                        onTap: () async {
+                          FirebaseFirestore.instance
+                              .collection("users")
+                              .doc(widget.uuid)
+                              .update(
+                            {
+                              "favorite": [],
+                            },
+                          );
+                        },
+                      );
+                    },
+                  );
                 },
               ),
             ],

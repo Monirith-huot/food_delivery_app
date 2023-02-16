@@ -44,6 +44,8 @@ class _SpecialOfferCardWidgetState extends State<SpecialOfferCardWidget> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => MenuScreen(
+                    userId: widget.uuid,
+                    restaurantId: widget.restaurant['rId'],
                     foodCategory: widget.restaurant["food_category"],
                     restaurantImage: widget.restaurant["image"],
                     restaurantName: widget.restaurant["name"],
@@ -57,6 +59,8 @@ class _SpecialOfferCardWidgetState extends State<SpecialOfferCardWidget> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => MenuScreen(
+                    userId: widget.uuid,
+                    restaurantId: widget.restaurant['rId'],
                     foodCategory: widget.restaurant[" food_categories"],
                     restaurantImage: widget.restaurant["image"],
                     restaurantName: widget.restaurant["name"],
@@ -69,6 +73,8 @@ class _SpecialOfferCardWidgetState extends State<SpecialOfferCardWidget> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => MenuScreen(
+                    userId: widget.uuid,
+                    restaurantId: widget.restaurant['rId'],
                     foodCategory: widget.restaurant["food_categories"],
                     restaurantImage: widget.restaurant["image"],
                     restaurantName: widget.restaurant["name"],

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:counter_button/counter_button.dart';
 import 'package:flutter/material.dart';
 
@@ -6,11 +7,19 @@ import 'package:food_delivery_app/src/presentation/views/menu/widget/foodSelecti
 import 'package:food_delivery_app/src/utils/pallete.dart';
 import 'package:heroicons/heroicons.dart';
 
+import '../logic/logic.category.dart';
+
 class FoodSelectionWidget extends StatefulWidget {
   final Map<dynamic, dynamic> food;
   final String discount;
+  final String userId;
+  final String restaurantId;
   const FoodSelectionWidget(
-      {Key? key, required this.food, required this.discount})
+      {Key? key,
+      required this.food,
+      required this.discount,
+      required this.userId,
+      required this.restaurantId})
       : super(key: key);
 
   @override
@@ -20,6 +29,19 @@ class FoodSelectionWidget extends StatefulWidget {
 class _FoodSelectionWidgetState extends State<FoodSelectionWidget> {
   int _counterValue = 1;
   int value = 0;
+
+  Future<void> _showDialog(Map food, int counterValue, String recommendation,
+      String userId, String restaurantId) async {
+    await LogicForOrder().createPopUpDialogForDiffrentRestaurant(
+        context: context,
+        food: food,
+        quality: counterValue,
+        recommendation: recommendation,
+        userId: userId,
+        restaurantId: restaurantId);
+    setState(() {});
+  }
+
   TextEditingController recommendation = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -260,8 +282,160 @@ class _FoodSelectionWidgetState extends State<FoodSelectionWidget> {
                             ),
                             const Spacer(),
                             GestureDetector(
-                              onTap: () {
-                                print(_counterValue);
+                              onTap: () async {
+                                double price_after_discount = widget
+                                            .food['customized_food'][value]
+                                        ['price'] -
+                                    (widget.food['customized_food'][value]
+                                            ['price'] *
+                                        int.parse(
+                                            widget.discount.substring(0, 2)) /
+                                        100);
+                                final getOrderItem = await FirebaseFirestore
+                                    .instance
+                                    .collection('users')
+                                    .doc(widget.userId)
+                                    .get()
+                                    .then((value) {
+                                  if (value.data() != null) {
+                                    return value.data()!['order'];
+                                  } else {
+                                    return [];
+                                  }
+                                });
+
+                                //note: check carts if cart is not empty
+                                if (getOrderItem != null &&
+                                    getOrderItem.length > 0) {
+                                  //note: if carts is come from same restaurants
+                                  if (getOrderItem[0]['rId'] ==
+                                      widget.restaurantId) {
+                                    bool idExists = false;
+                                    int index = -1;
+                                    for (int i = 0;
+                                        i < getOrderItem.length;
+                                        i++) {
+                                      //note: if food id is already exists in carts
+                                      if (getOrderItem[i]['orderFood'][0]
+                                              ['food']['id'] ==
+                                          widget.food['id']) {
+                                        idExists = true;
+                                        index = i;
+                                        break;
+                                      }
+                                    }
+                                    //note: if it is not exist we create new carts
+                                    if (!idExists) {
+                                      FirebaseFirestore.instance
+                                          .collection("users")
+                                          .doc(widget.userId)
+                                          .update({
+                                        "order": FieldValue.arrayUnion([
+                                          {
+                                            "rId": widget.restaurantId,
+                                            "orderFood": [
+                                              {
+                                                "food": widget.food,
+                                                "quantity": _counterValue,
+                                                "totalPrice": double.parse(
+                                                        (_counterValue *
+                                                                price_after_discount *
+                                                                100)
+                                                            .round()
+                                                            .toString()) /
+                                                    100,
+                                                "suggestion":
+                                                    recommendation.text,
+                                              }
+                                            ],
+                                          },
+                                        ])
+                                      });
+                                      //note if food exists in carts
+                                    } else {
+                                      int prevQuantity = getOrderItem[index]
+                                          ['orderFood'][0]['quantity'];
+                                      double prevTotalPrice =
+                                          getOrderItem[index]['orderFood'][0]
+                                              ['totalPrice'];
+
+                                      FirebaseFirestore.instance
+                                          .collection("users")
+                                          .doc(widget.userId)
+                                          .update({
+                                        "order": FieldValue.arrayRemove([
+                                          getOrderItem[index],
+                                        ]),
+                                      });
+
+                                      FirebaseFirestore.instance
+                                          .collection("users")
+                                          .doc(widget.userId)
+                                          .update({
+                                        "order": FieldValue.arrayUnion([
+                                          {
+                                            "rId": widget.restaurantId,
+                                            "orderFood": [
+                                              {
+                                                "food": widget.food,
+                                                "quantity": prevQuantity +
+                                                    _counterValue,
+                                                "totalPrice": double.parse(
+                                                        ((prevQuantity +
+                                                                    _counterValue) *
+                                                                price_after_discount *
+                                                                100)
+                                                            .round()
+                                                            .toString()) /
+                                                    100,
+                                                "suggestion":
+                                                    recommendation.text,
+                                              }
+                                            ],
+                                          },
+                                        ])
+                                      });
+                                    }
+                                  } else {
+                                    //notes: is where you order from diffrent restaurants
+                                    _showDialog(
+                                      widget.food,
+                                      _counterValue,
+                                      recommendation.text,
+                                      widget.userId,
+                                      widget.restaurantId,
+                                    );
+                                  }
+                                }
+                                //notes if carts is empty
+                                else {
+                                  FirebaseFirestore.instance
+                                      .collection("users")
+                                      .doc(widget.userId)
+                                      .update(
+                                    {
+                                      "order": FieldValue.arrayUnion([
+                                        {
+                                          "rId": widget.restaurantId,
+                                          "orderFood": [
+                                            {
+                                              "food": widget.food,
+                                              "quantity": _counterValue,
+                                              "totalPrice": double.parse(
+                                                      (_counterValue *
+                                                              price_after_discount *
+                                                              100)
+                                                          .round()
+                                                          .toString()) /
+                                                  100,
+                                              "suggestion": recommendation.text,
+                                            }
+                                          ],
+                                        },
+                                      ])
+                                    },
+                                  );
+                                }
                               },
                               child: Container(
                                 height: SIZE.buttonHeight,
@@ -292,7 +466,9 @@ class _FoodSelectionWidgetState extends State<FoodSelectionWidget> {
           ),
         ),
       );
-    } on FormatException {
+    }
+    //notes None discount products
+    on FormatException {
       return Scaffold(
         body: GestureDetector(
           onTap: () {
@@ -342,7 +518,8 @@ class _FoodSelectionWidgetState extends State<FoodSelectionWidget> {
                             ),
                             const Spacer(),
                             CustomText(
-                              text: widget.food["price"].toString() + " \$",
+                              text: widget.food["price"].toStringAsFixed(2) +
+                                  " \$",
                               size: SIZE.textSize,
                               color: COLORS.primary,
                               weight: FontWeight.bold,
@@ -494,8 +671,160 @@ class _FoodSelectionWidgetState extends State<FoodSelectionWidget> {
                             ),
                             const Spacer(),
                             GestureDetector(
-                              onTap: () {
-                                print(_counterValue);
+                              //todo : genreate for this as well
+                              onTap: () async {
+                                final getOrderItem = await FirebaseFirestore
+                                    .instance
+                                    .collection('users')
+                                    .doc(widget.userId)
+                                    .get()
+                                    .then((value) {
+                                  if (value.data() != null) {
+                                    return value.data()!['order'];
+                                  } else {
+                                    return [];
+                                  }
+                                });
+
+                                //note: check carts if cart is not empty
+                                if (getOrderItem != null &&
+                                    getOrderItem.length > 0) {
+                                  //note: if carts is come from same restaurants
+                                  if (getOrderItem[0]['rId'] ==
+                                      widget.restaurantId) {
+                                    bool idExists = false;
+                                    int index = -1;
+                                    for (int i = 0;
+                                        i < getOrderItem.length;
+                                        i++) {
+                                      //note: if food id is already exists in carts
+                                      if (getOrderItem[i]['orderFood'][0]
+                                              ['food']['id'] ==
+                                          widget.food['id']) {
+                                        idExists = true;
+                                        index = i;
+                                        break;
+                                      }
+                                    }
+                                    //note: if it is not exist we create new carts
+                                    if (!idExists) {
+                                      FirebaseFirestore.instance
+                                          .collection("users")
+                                          .doc(widget.userId)
+                                          .update({
+                                        "order": FieldValue.arrayUnion([
+                                          {
+                                            "rId": widget.restaurantId,
+                                            "orderFood": [
+                                              {
+                                                "food": widget.food,
+                                                "quantity": _counterValue,
+                                                "totalPrice": double.parse(
+                                                        (_counterValue *
+                                                                widget.food['customized_food']
+                                                                        [value]
+                                                                    ['price'] *
+                                                                100)
+                                                            .round()
+                                                            .toString()) /
+                                                    100,
+                                                "suggestion":
+                                                    recommendation.text,
+                                              }
+                                            ],
+                                          },
+                                        ])
+                                      });
+                                      //note if food exists in carts
+                                    } else {
+                                      int prevQuantity = getOrderItem[index]
+                                          ['orderFood'][0]['quantity'];
+                                      double prevTotalPrice =
+                                          getOrderItem[index]['orderFood'][0]
+                                              ['totalPrice'];
+
+                                      FirebaseFirestore.instance
+                                          .collection("users")
+                                          .doc(widget.userId)
+                                          .update({
+                                        "order": FieldValue.arrayRemove([
+                                          getOrderItem[index],
+                                        ]),
+                                      });
+
+                                      FirebaseFirestore.instance
+                                          .collection("users")
+                                          .doc(widget.userId)
+                                          .update({
+                                        "order": FieldValue.arrayUnion([
+                                          {
+                                            "rId": widget.restaurantId,
+                                            "orderFood": [
+                                              {
+                                                "food": widget.food,
+                                                "quantity": prevQuantity +
+                                                    _counterValue,
+                                                "totalPrice": double.parse(
+                                                        ((prevQuantity +
+                                                                    _counterValue) *
+                                                                widget.food['customized_food']
+                                                                        [value]
+                                                                    ['price'] *
+                                                                100)
+                                                            .round()
+                                                            .toString()) /
+                                                    100,
+                                                "suggestion":
+                                                    recommendation.text,
+                                              }
+                                            ],
+                                          },
+                                        ])
+                                      });
+                                    }
+                                  } else {
+                                    //notes: is where you order from diffrent restaurants
+                                    _showDialog(
+                                      widget.food,
+                                      _counterValue,
+                                      recommendation.text,
+                                      widget.userId,
+                                      widget.restaurantId,
+                                    );
+                                  }
+                                }
+                                //notes if carts is empty
+                                else {
+                                  FirebaseFirestore.instance
+                                      .collection("users")
+                                      .doc(widget.userId)
+                                      .update(
+                                    {
+                                      "order": FieldValue.arrayUnion([
+                                        {
+                                          "rId": widget.restaurantId,
+                                          "orderFood": [
+                                            {
+                                              "food": widget.food,
+                                              "quantity": _counterValue,
+                                              "totalPrice": double.parse(
+                                                      (_counterValue *
+                                                              widget.food[
+                                                                      'customized_food']
+                                                                  [
+                                                                  value]['price'] *
+                                                              100)
+                                                          .round()
+                                                          .toString()) /
+                                                  100,
+                                              "suggestion": recommendation.text,
+                                            }
+                                          ],
+                                        },
+                                      ])
+                                    },
+                                  );
+                                }
                               },
                               child: Container(
                                 height: SIZE.buttonHeight,

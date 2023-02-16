@@ -8,13 +8,15 @@ class AlertAction extends StatelessWidget {
   final String title;
   final String description;
   final Function onTap;
+  final bool otherPop;
 
-  const AlertAction(
-      {Key? key,
-      required this.title,
-      required this.description,
-      required this.onTap})
-      : super(key: key);
+  const AlertAction({
+    Key? key,
+    required this.title,
+    required this.description,
+    required this.onTap,
+    required this.otherPop,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +68,12 @@ class AlertAction extends StatelessWidget {
         GestureDetector(
           onTap: () async {
             onTap();
-            Navigator.of(context).pop();
+            if (otherPop) {
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            } else {
+              Navigator.of(context).pop();
+            }
           },
           child: Container(
             alignment: Alignment.center,
