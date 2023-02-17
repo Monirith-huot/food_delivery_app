@@ -59,17 +59,23 @@ class _MenuScreenState extends State<MenuScreen>
       builder:
           (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
         if (snapshot.hasError) {
-          return Text('Something went wrong');
+          return CircularProgressIndicator();
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Text("Loading");
         }
+        if (snapshot.hasData) {
+          print(snapshot.data?.data());
+        }
         final cartItem = snapshot.data!['order'];
-        double totalCartPrice = cartItem
-            .map((order) => order['orderFood']
-                .fold(0, (sum, item) => sum + item['totalPrice']))
-            .reduce((sum, value) => sum + value);
 
+        double totalCartPrice = cartItem.isEmpty
+            ? 0
+            : cartItem
+                .map((order) => order['orderFood']
+                    .fold(0, (sum, item) => sum + item['totalPrice']))
+                .reduce((sum, value) => sum + value);
+        print(totalCartPrice);
         return Scaffold(
           backgroundColor: Colors.white,
           body: VerticalScrollableTabView(
@@ -84,6 +90,7 @@ class _MenuScreenState extends State<MenuScreen>
                 discount: widget.discount,
                 eachCategoryFood: object["food"],
                 eachCategoryName: object['name'],
+                cartItem: cartItem.isNotEmpty ? cartItem : [],
               ),
             ),
             slivers: [

@@ -14,6 +14,7 @@ class CategorySelectionWidget extends StatefulWidget {
   final List eachCategoryFood;
   final String restaurantId;
   final String userId;
+  final List? cartItem;
 
   const CategorySelectionWidget({
     Key? key,
@@ -22,6 +23,7 @@ class CategorySelectionWidget extends StatefulWidget {
     required this.discount,
     required this.restaurantId,
     required this.userId,
+    this.cartItem,
   }) : super(key: key);
 
   @override
@@ -70,7 +72,6 @@ class _CategorySelectionWidgetState extends State<CategorySelectionWidget> {
         (index) {
           final food = widget.eachCategoryFood[index];
           bool isLastIndex = index == widget.eachCategoryFood.length - 1;
-          // print(food["image"]);
           return _buildFoodTile(
             food: food,
             context: context,
@@ -148,10 +149,11 @@ class _CategorySelectionWidgetState extends State<CategorySelectionWidget> {
                     curve: Curves.linear,
                     type: PageTransitionType.bottomToTop,
                     child: FoodSelectionWidget(
-                        food: food,
-                        discount: widget.discount,
-                        userId: widget.userId,
-                        restaurantId: widget.restaurantId),
+                      food: food,
+                      discount: widget.discount,
+                      userId: widget.userId,
+                      restaurantId: widget.restaurantId,
+                    ),
                   ),
                 );
               } else {
@@ -191,19 +193,23 @@ class _CategorySelectionWidgetState extends State<CategorySelectionWidget> {
   }
 
   Widget _buildFoodImage(String url) {
-    return url != ""
-        ? Container(
-            child: Image(
-              image: NetworkImage(url),
-              width: 124,
-              height: 124,
-            ),
-          )
-        : Container(
+    if (url != "") {
+      return Stack(
+        children: [
+          Image(
+            image: NetworkImage(url),
             width: 124,
             height: 124,
-            color: COLORS.heavyGrey,
-          );
+          ),
+        ],
+      );
+    } else {
+      return Container(
+        width: 124,
+        height: 124,
+        color: COLORS.heavyGrey,
+      );
+    }
   }
 
   Widget _buildFoodDetail({
@@ -211,6 +217,21 @@ class _CategorySelectionWidgetState extends State<CategorySelectionWidget> {
     required Map food,
   }) {
     var price = double.parse(food['price'].toString());
+    // var idExists = widget.cartItem.any((order) =>
+    //     order['orderFood'].any((food) => food['food']['id'] == food['id']));
+
+    var idExists = false;
+    var quantity = 0;
+    if (widget.cartItem != []) {
+      for (int i = 0; i < widget.cartItem!.length; i++) {
+        if (food['id'] == widget.cartItem![i]['orderFood'][0]['food']['id']) {
+          idExists = true;
+          quantity = widget.cartItem![i]['orderFood'][0]['quantity'];
+          break;
+        }
+      }
+    }
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,15 +289,64 @@ class _CategorySelectionWidgetState extends State<CategorySelectionWidget> {
                           fontFamily: "Product-Sans",
                         ),
                       ),
+                      const SizedBox(
+                        width: 30,
+                      ),
+                      //todo : here is where we need to do
+
+                      idExists
+                          ? Container(
+                              // bottom: 10,
+                              // left: 0,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: Container(
+                                  color: COLORS.primary,
+                                  width: 35,
+                                  height: 35,
+                                  child: Text(quantity.toString()),
+                                ),
+                              ),
+                            )
+                          : SizedBox(),
                     ],
                   )
-                : Text(
-                    "${food["price"]} \$",
-                    style: const TextStyle(
-                      color: COLORS.primary,
-                      fontSize: SIZE.subTextSize,
-                      fontWeight: FontWeight.bold,
-                    ),
+                : Row(
+                    children: [
+                      Text(
+                        "${food["price"]} \$",
+                        style: const TextStyle(
+                          color: COLORS.primary,
+                          fontSize: SIZE.subTextSize,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 30,
+                      ),
+                      idExists
+                          ? Container(
+                              // bottom: 10,
+                              // left: 0,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(50),
+                                child: Container(
+                                  color: COLORS.primary,
+                                  width: 35,
+                                  height: 35,
+                                  child: Center(
+                                    child: CustomText(
+                                      text: quantity.toString(),
+                                      color: COLORS.white,
+                                      size: SIZE.subTextSize,
+                                      weight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            )
+                          : SizedBox(),
+                    ],
                   ),
           ],
         )
