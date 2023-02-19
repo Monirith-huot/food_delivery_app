@@ -48,270 +48,342 @@ class _HomeScreenState extends State<HomeScreen> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Text("Loading");
         }
-        return Scaffold(
-          body: Stack(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  _showDrawer == true
-                      ? setState(() {
-                          _showDrawer = false;
-                        })
-                      : null;
-                },
-                child: Container(
-                  width: double.infinity,
-                  color: COLORS.primary,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      const SizedBox(
-                        height: 50,
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(30),
+        return StreamBuilder<DocumentSnapshot>(
+            stream: FirebaseFirestore.instance
+                .collection("users")
+                .doc(uuid)
+                .snapshots(),
+            builder: (BuildContext context,
+                AsyncSnapshot<DocumentSnapshot> snapshot1) {
+              if (snapshot.hasError) {
+                return Text('Something went wrong');
+              }
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Text("Loading");
+              }
+              int ordering = 0;
+              if (snapshot1.hasData) {
+                Map<String, dynamic>? data =
+                    snapshot1.data?.data() as Map<String, dynamic>?;
+                ordering = data?['ordering'].length;
+              }
+
+              return Scaffold(
+                floatingActionButton: ordering > 0
+                    ? FloatingActionButton.extended(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ProgressOrderingScreen(
+                                // restaurantId: widget.restaurantId,
+                                userId: uuid,
+                              ),
+                            ),
+                          );
+                        },
+                        // label: Row(
+                        //   children: [
+                        //     Text("You have an ordering items going on"),
+                        //     const SizedBox(
+                        //       width: 25,
+                        //     ),
+
+                        //     const SizedBox(
+                        //       width: 25,
+                        //     ),
+                        //     // Text("${totalCartPrice.toStringAsFixed(2)}\$"),
+                        //   ],
+                        // ),
+                        label: CustomText(
+                          text: "You have an ordering items going on",
+                          size: SIZE.subTextSize,
+                          color: COLORS.white,
+                          weight: FontWeight.w500,
+                        ),
+                        backgroundColor: COLORS.primary,
+                      )
+                    : SizedBox(),
+                floatingActionButtonLocation:
+                    FloatingActionButtonLocation.centerFloat,
+                body: Stack(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        _showDrawer == true
+                            ? setState(() {
+                                _showDrawer = false;
+                              })
+                            : null;
+                      },
+                      child: Container(
+                        width: double.infinity,
+                        color: COLORS.primary,
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _showDrawer = true;
-                                    });
-                                  },
-                                  child: const HeroIcon(
-                                    HeroIcons.bars3CenterLeft,
-                                    style: HeroIconStyle.outline,
+                          children: <Widget>[
+                            const SizedBox(
+                              height: 50,
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(30),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _showDrawer = true;
+                                          });
+                                        },
+                                        child: const HeroIcon(
+                                          HeroIcons.bars3CenterLeft,
+                                          style: HeroIconStyle.outline,
+                                          color: COLORS.white,
+                                          size: SIZE.iconsSize,
+                                        ),
+                                      ),
+                                      const Spacer(),
+                                      Row(
+                                        children: [
+                                          GestureDetector(
+                                            onTap: () {},
+                                            child: const HeroIcon(
+                                              HeroIcons.shoppingBag,
+                                              color: COLORS.white,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 30),
+                                          GestureDetector(
+                                            onTap: () {
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) =>
+                                                      FavoriteScreen(
+                                                          uuid: uuid),
+                                                ),
+                                              );
+                                            },
+                                            child: const HeroIcon(
+                                              HeroIcons.heart,
+                                              color: COLORS.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 30),
+                                  const CustomText(
+                                    text: "Find your",
+                                    size: 24,
                                     color: COLORS.white,
-                                    size: SIZE.iconsSize,
+                                    weight: FontWeight.bold,
+                                  ),
+                                  const CustomText(
+                                    text: "Favourite food 🫕",
+                                    size: 24,
+                                    color: COLORS.white,
+                                    weight: FontWeight.bold,
+                                  ),
+                                  const SizedBox(height: 30),
+                                  CustomizeButtonNavigation(
+                                    bgColor: COLORS.white,
+                                    width: SIZE.bigButtonWidth,
+                                    //create Navigator push to search screen
+                                    navigation: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (BuildContext context) =>
+                                            SearchScreen(),
+                                      ),
+                                    ),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(
+                                          left: 10,
+                                          right: 10,
+                                          top: 5,
+                                          bottom: 5),
+                                      child: Row(
+                                        children: const [
+                                          HeroIcon(
+                                            HeroIcons.magnifyingGlass,
+                                            color: COLORS.grey,
+                                          ),
+                                          SizedBox(
+                                            width: 10,
+                                          ),
+                                          CustomText(
+                                            text:
+                                                "Search for your favorite restaurants here",
+                                            size: SIZE.textSize,
+                                            color: COLORS.grey,
+                                            weight: FontWeight.normal,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ),
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            Expanded(
+                              child: Container(
+                                width: double.infinity,
+                                decoration: const BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(20),
+                                    topRight: Radius.circular(20),
                                   ),
                                 ),
-                                const Spacer(),
-                                Row(
-                                  children: [
-                                    GestureDetector(
-                                      onTap: () {},
-                                      child: const HeroIcon(
-                                        HeroIcons.shoppingBag,
-                                        color: COLORS.white,
+                                child: Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 30, right: 30, top: 10, bottom: 10),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      FoodCategoryWidget(),
+                                      const SizedBox(
+                                        height: 10,
                                       ),
-                                    ),
-                                    const SizedBox(width: 30),
-                                    GestureDetector(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                FavoriteScreen(uuid: uuid),
+
+                                      //Spcial offer
+                                      Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              const CustomText(
+                                                text: "Special Offers",
+                                                size: SIZE.textSize,
+                                                color: COLORS.black,
+                                                weight: FontWeight.bold,
+                                              ),
+                                              const Spacer(),
+                                              TextButton(
+                                                onPressed: () {},
+                                                child: const CustomText(
+                                                  text: "show all",
+                                                  color: COLORS.primary,
+                                                  weight: FontWeight.bold,
+                                                  size: SIZE.subTextSize,
+                                                ),
+                                              ),
+                                            ],
                                           ),
-                                        );
-                                      },
-                                      child: const HeroIcon(
-                                        HeroIcons.heart,
-                                        color: COLORS.white,
+                                          SizedBox(
+                                            height: 150,
+                                            child: ListView(
+                                              scrollDirection: Axis.horizontal,
+                                              children: snapshot.data!.docs
+                                                  .where((DocumentSnapshot
+                                                          document) =>
+                                                      (document.data() as Map<
+                                                              String,
+                                                              dynamic>)?[
+                                                          "discount"] !=
+                                                      "no")
+                                                  .map((DocumentSnapshot
+                                                      document) {
+                                                Map<String, dynamic> data =
+                                                    document.data()
+                                                        as Map<String, dynamic>;
+
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                          right: 50),
+                                                  child: Container(
+                                                    height: 150,
+                                                    width: SIZE.cardWidth,
+                                                    child:
+                                                        SpecialOfferCardWidget(
+                                                      uuid: uuid,
+                                                      restaurant: data,
+                                                    ),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ),
+                                        ],
                                       ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 30),
-                            const CustomText(
-                              text: "Find your",
-                              size: 24,
-                              color: COLORS.white,
-                              weight: FontWeight.bold,
-                            ),
-                            const CustomText(
-                              text: "Favourite food 🫕",
-                              size: 24,
-                              color: COLORS.white,
-                              weight: FontWeight.bold,
-                            ),
-                            const SizedBox(height: 30),
-                            CustomizeButtonNavigation(
-                              bgColor: COLORS.white,
-                              width: SIZE.bigButtonWidth,
-                              //create Navigator push to search screen
-                              navigation: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (BuildContext context) =>
-                                      SearchScreen(),
+
+                                      //Popular resurants
+                                      Column(
+                                        children: [
+                                          Row(
+                                            children: [
+                                              const CustomText(
+                                                text: "Popular restaurants",
+                                                size: SIZE.textSize,
+                                                color: COLORS.black,
+                                                weight: FontWeight.bold,
+                                              ),
+                                              const Spacer(),
+                                              TextButton(
+                                                onPressed: () {},
+                                                child: const CustomText(
+                                                  text: "show all",
+                                                  color: COLORS.primary,
+                                                  weight: FontWeight.bold,
+                                                  size: SIZE.subTextSize,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Container(
+                                            height: 150,
+                                            child: ListView(
+                                              scrollDirection: Axis.horizontal,
+                                              children: snapshot.data!.docs.map(
+                                                  (DocumentSnapshot document) {
+                                                Map<String, dynamic> data =
+                                                    document.data()!
+                                                        as Map<String, dynamic>;
+
+                                                return Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                    right: 50,
+                                                  ),
+                                                  child: Container(
+                                                    height: 150,
+                                                    width: SIZE.cardWidth,
+                                                    child:
+                                                        SpecialOfferCardWidget(
+                                                      uuid: uuid,
+                                                      restaurant: data,
+                                                    ),
+                                                  ),
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 10, right: 10, top: 5, bottom: 5),
-                                child: Row(
-                                  children: const [
-                                    HeroIcon(
-                                      HeroIcons.magnifyingGlass,
-                                      color: COLORS.grey,
-                                    ),
-                                    SizedBox(
-                                      width: 10,
-                                    ),
-                                    CustomText(
-                                      text:
-                                          "Search for your favorite restaurants here",
-                                      size: SIZE.textSize,
-                                      color: COLORS.grey,
-                                      weight: FontWeight.normal,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            )
+                            ),
                           ],
                         ),
                       ),
-                      const SizedBox(
-                        height: 20,
-                      ),
-                      Expanded(
-                        child: Container(
-                          width: double.infinity,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(20),
-                              topRight: Radius.circular(20),
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.only(
-                                left: 30, right: 30, top: 10, bottom: 10),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                FoodCategoryWidget(),
-                                const SizedBox(
-                                  height: 10,
-                                ),
-
-                                //Spcial offer
-                                Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const CustomText(
-                                          text: "Special Offers",
-                                          size: SIZE.textSize,
-                                          color: COLORS.black,
-                                          weight: FontWeight.bold,
-                                        ),
-                                        const Spacer(),
-                                        TextButton(
-                                          onPressed: () {},
-                                          child: const CustomText(
-                                            text: "show all",
-                                            color: COLORS.primary,
-                                            weight: FontWeight.bold,
-                                            size: SIZE.subTextSize,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    SizedBox(
-                                      height: 150,
-                                      child: ListView(
-                                        scrollDirection: Axis.horizontal,
-                                        children: snapshot.data!.docs
-                                            .where((DocumentSnapshot
-                                                    document) =>
-                                                (document.data() as Map<String,
-                                                    dynamic>)?["discount"] !=
-                                                "no")
-                                            .map((DocumentSnapshot document) {
-                                          Map<String, dynamic> data = document
-                                              .data() as Map<String, dynamic>;
-
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                                right: 50),
-                                            child: Container(
-                                              height: 150,
-                                              width: SIZE.cardWidth,
-                                              child: SpecialOfferCardWidget(
-                                                uuid: uuid,
-                                                restaurant: data,
-                                              ),
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-
-                                //Popular resurants
-                                Column(
-                                  children: [
-                                    Row(
-                                      children: [
-                                        const CustomText(
-                                          text: "Popular restaurants",
-                                          size: SIZE.textSize,
-                                          color: COLORS.black,
-                                          weight: FontWeight.bold,
-                                        ),
-                                        const Spacer(),
-                                        TextButton(
-                                          onPressed: () {},
-                                          child: const CustomText(
-                                            text: "show all",
-                                            color: COLORS.primary,
-                                            weight: FontWeight.bold,
-                                            size: SIZE.subTextSize,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Container(
-                                      height: 150,
-                                      child: ListView(
-                                        scrollDirection: Axis.horizontal,
-                                        children: snapshot.data!.docs
-                                            .map((DocumentSnapshot document) {
-                                          Map<String, dynamic> data = document
-                                              .data()! as Map<String, dynamic>;
-
-                                          return Padding(
-                                            padding: const EdgeInsets.only(
-                                              right: 50,
-                                            ),
-                                            child: Container(
-                                              height: 150,
-                                              width: SIZE.cardWidth,
-                                              child: SpecialOfferCardWidget(
-                                                uuid: uuid,
-                                                restaurant: data,
-                                              ),
-                                            ),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                    _showDrawer ? DrawerWidget() : Container(),
+                  ],
                 ),
-              ),
-              _showDrawer ? DrawerWidget() : Container(),
-            ],
-          ),
-        );
+              );
+            });
       },
     );
   }

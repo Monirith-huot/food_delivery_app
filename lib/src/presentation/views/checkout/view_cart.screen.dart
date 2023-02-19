@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:counter_button/counter_button.dart';
 import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
 
 import 'package:food_delivery_app/src/presentation/customize.dart';
 import 'package:food_delivery_app/src/utils/pallete.dart';
@@ -67,7 +68,7 @@ class _ViewCartScreenState extends State<ViewCartScreen> {
           //   print(snapshot.data?.data());
           // }
           final cartItem = snapshot.data!['order'];
-
+          final uuid = Uuid();
           double totalCartPrice = cartItem.isEmpty
               ? 0
               : cartItem
@@ -716,26 +717,31 @@ class _ViewCartScreenState extends State<ViewCartScreen> {
                                 _currentStep == 1
                                     ? _currentStep += 1
                                     : _currentStep == 2
-                                        // ? FirebaseFirestore.instance
-                                        //     .collection("orders")
-                                        //     .add({
-                                        //     "userId": user.id,
-                                        //     "orderFood": cartItem,
-                                        //     "totalPrice": totalCartPrice,
-                                        //     "orderDate": DateTime.now(),
-                                        //     "orderStatus": "pending",
-                                        //   }).then((value) {
-                                        //     cartItem.clear();
-                                        //     totalCartPrice = 0;
-                                        //     Navigator.push(
-                                        //       context,
-                                        //       MaterialPageRoute(
-                                        //         builder: (context) =>
-                                        //             const OrderScreen(),
-                                        //       ),
-                                        //     );
-                                        //   })
-                                        ? print("hello world")
+                                        ? FirebaseFirestore.instance
+                                            .collection("users")
+                                            .doc(widget.userId)
+                                            .update(
+                                            {
+                                              "ordering": FieldValue.arrayUnion(
+                                                [
+                                                  {
+                                                    "id": uuid.v4().toString(),
+                                                    "status": "ORDERING",
+                                                    "orderFood": cartItem,
+                                                  },
+                                                ],
+                                              ),
+                                            },
+                                          ).then(
+                                            (value) => Navigator.of(context)
+                                                .pushReplacement(
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ThankYouScreen(
+                                                        userId: widget.userId),
+                                              ),
+                                            ),
+                                          )
                                         : null;
                               },
                             );

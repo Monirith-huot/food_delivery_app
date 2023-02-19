@@ -16,3 +16,5 @@ export "package:food_delivery_app/src/presentation/views/menu/menu.screen.dart";
 export "package:food_delivery_app/src/presentation/views/favorite/favorite.screen.dart";
 export "package:food_delivery_app/src/presentation/views/splash/splash.screen.dart";
 export 'package:food_delivery_app/src/presentation/views/checkout/view_cart.screen.dart';
+export 'package:food_delivery_app/src/presentation/views/thankYou/thank_you.screen.dart';
+export 'package:food_delivery_app/src/presentation/views/progress_ordering/progress_ordering.screen.dart';

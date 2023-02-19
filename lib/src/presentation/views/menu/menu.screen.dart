@@ -68,6 +68,7 @@ class _MenuScreenState extends State<MenuScreen>
           print(snapshot.data?.data());
         }
         final cartItem = snapshot.data!['order'];
+        final ordering = snapshot.data!['ordering'];
 
         double totalCartPrice = cartItem.isEmpty
             ? 0
@@ -91,6 +92,7 @@ class _MenuScreenState extends State<MenuScreen>
                 eachCategoryFood: object["food"],
                 eachCategoryName: object['name'],
                 cartItem: cartItem.isNotEmpty ? cartItem : [],
+                ordering: snapshot.data!['ordering'].length,
               ),
             ),
             slivers: [

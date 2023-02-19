@@ -57,4 +57,22 @@ class LogicForOrder {
     );
   }
 
+  createPopUpDialogForOnGoingOrder({
+    required BuildContext context,
+  }) {
+    return showDialog(
+      context: context,
+      builder: (context) {
+        return AlertAction(
+          title: "Warning",
+          description:
+              "You have already ordering something. You cant make any order until you finish your order!",
+          otherPop: false,
+          onTap: () {
+            Navigator.pop(context);
+          },
+        );
+      },
+    );
+  }
 }

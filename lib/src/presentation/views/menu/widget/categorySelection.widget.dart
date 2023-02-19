@@ -15,6 +15,7 @@ class CategorySelectionWidget extends StatefulWidget {
   final String restaurantId;
   final String userId;
   final List? cartItem;
+  final int ordering;
 
   const CategorySelectionWidget({
     Key? key,
@@ -24,6 +25,7 @@ class CategorySelectionWidget extends StatefulWidget {
     required this.restaurantId,
     required this.userId,
     this.cartItem,
+    required this.ordering,
   }) : super(key: key);
 
   @override
@@ -37,29 +39,66 @@ class _CategorySelectionWidgetState extends State<CategorySelectionWidget> {
   Future<void> _showDialog(Map food, int counterValue, String recommendation,
       String userId, String restaurantId) async {
     await LogicForOrder().createPopUpDialogForDiffrentRestaurant(
-        context: context,
-        food: food,
-        quality: counterValue,
-        recommendation: recommendation,
-        userId: userId,
-        restaurantId: restaurantId);
+      context: context,
+      food: food,
+      quality: counterValue,
+      recommendation: recommendation,
+      userId: userId,
+      restaurantId: restaurantId,
+    );
     setState(() {});
+  }
+
+  void initState() {
+    FirebaseFirestore.instance
+        .collection("users")
+        .doc(widget.userId)
+        .get()
+        .then((docSnapshot) {
+      if (docSnapshot.exists) {
+        Map<String, dynamic>? data = docSnapshot.data();
+        List<dynamic> ordering = data?['ordering'];
+
+        if (ordering != null && ordering.length > 0) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertAction(
+                  title: "Warining",
+                  // content: Text('You have items in your ordering list.'),
+                  description:
+                      "You have already ordering something. You cant make any order until you finish your order!",
+                  otherPop: false,
+                  onTap: () {
+                    Navigator.of(context).pop();
+                  }
+    
+                  );
+            },
+          );
+        }
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildSectionTileHeader(context),
-          const SizedBox(
-            height: 40,
-          ),
-          buildFoodTileList(context),
-        ],
+    return IgnorePointer(
+      ignoring: widget.ordering > 0 ? true : false,
+      child: Container(
+        color: widget.ordering > 0 ? COLORS.grey.withOpacity(1) : null,
+        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+        margin: const EdgeInsets.only(bottom: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionTileHeader(context),
+            const SizedBox(
+              height: 40,
+            ),
+            buildFoodTileList(context),
+          ],
+        ),
       ),
     );
   }
@@ -115,7 +154,7 @@ class _CategorySelectionWidgetState extends State<CategorySelectionWidget> {
     required Map food,
   }) {
     //todo: to get item circle
-    return Container(
+    return SizedBox(
       height: 250,
       // color: COLORS.grey,
       child: Padding(
