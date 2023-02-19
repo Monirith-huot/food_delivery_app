@@ -101,7 +101,7 @@ class _MenuScreenState extends State<MenuScreen>
                 flexibleSpace: LayoutBuilder(
                   builder: (context, constraints) {
                     top = constraints.biggest.height;
-                    print(top);
+
                     return FlexibleSpaceBar(
                       centerTitle: true,
                       title: top < 165
@@ -195,7 +195,9 @@ class _MenuScreenState extends State<MenuScreen>
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ViewCartScreen(),
+                        builder: (context) => ViewCartScreen(
+                          userId: widget.userId,
+                        ),
                       ),
                     );
                   },

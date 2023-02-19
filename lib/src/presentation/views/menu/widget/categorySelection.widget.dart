@@ -296,15 +296,20 @@ class _CategorySelectionWidgetState extends State<CategorySelectionWidget> {
 
                       idExists
                           ? Container(
-                              // bottom: 10,
-                              // left: 0,
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(50),
                                 child: Container(
                                   color: COLORS.primary,
                                   width: 35,
                                   height: 35,
-                                  child: Text(quantity.toString()),
+                                  child: Center(
+                                    child: CustomText(
+                                      text: quantity.toString(),
+                                      color: COLORS.white,
+                                      size: SIZE.subTextSize,
+                                      weight: FontWeight.w500,
+                                    ),
+                                  ),
                                 ),
                               ),
                             )
@@ -326,8 +331,6 @@ class _CategorySelectionWidgetState extends State<CategorySelectionWidget> {
                       ),
                       idExists
                           ? Container(
-                              // bottom: 10,
-                              // left: 0,
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(50),
                                 child: Container(
@@ -581,29 +584,37 @@ class _CategorySelectionWidgetState extends State<CategorySelectionWidget> {
                                               FirebaseFirestore.instance
                                                   .collection("users")
                                                   .doc(widget.userId)
-                                                  .update({
-                                                "order": FieldValue.arrayUnion([
-                                                  {
-                                                    "rId": widget.restaurantId,
-                                                    "orderFood": [
+                                                  .update(
+                                                {
+                                                  "order":
+                                                      FieldValue.arrayUnion(
+                                                    [
                                                       {
-                                                        "food": food,
-                                                        "quantity":
-                                                            _counterValue,
-                                                        "totalPrice": double.parse(
-                                                                (_counterValue *
-                                                                        price_after_discount *
-                                                                        100)
-                                                                    .round()
-                                                                    .toString()) /
-                                                            100,
-                                                        "suggestion":
-                                                            recommendation.text,
-                                                      }
+                                                        "rId":
+                                                            widget.restaurantId,
+                                                        "orderFood": [
+                                                          {
+                                                            "food": food,
+                                                            "quantity":
+                                                                _counterValue,
+                                                            "totalPrice": double.parse(
+                                                                    (_counterValue *
+                                                                            price_after_discount *
+                                                                            100)
+                                                                        .round()
+                                                                        .toString()) /
+                                                                100,
+                                                            "suggestion":
+                                                                recommendation
+                                                                    .text,
+                                                          }
+                                                        ],
+                                                      },
                                                     ],
-                                                  },
-                                                ])
-                                              });
+                                                  ),
+                                                },
+                                              );
+
                                               //note if food exists in carts
                                             } else {
                                               int prevQuantity =
@@ -1046,7 +1057,9 @@ class _CategorySelectionWidgetState extends State<CategorySelectionWidget> {
                                                     },
                                                   ])
                                                 },
-                                              );
+                                              ).then((value) =>
+                                                      Navigator.of(context)
+                                                          .pop());
                                             }
                                           },
                                           child: Container(

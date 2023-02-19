@@ -93,8 +93,9 @@ class _SignupScreenState extends State<SignupScreen> {
       "username": userNameController.text,
       "email": emailController.text,
       "favorite": [],
-      "history" : [],
+      "history": [],
       "order": [],
+      "search": [],
     });
   }
 

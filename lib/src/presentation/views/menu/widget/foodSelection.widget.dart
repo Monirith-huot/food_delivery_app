@@ -394,7 +394,8 @@ class _FoodSelectionWidgetState extends State<FoodSelectionWidget> {
                                             ],
                                           },
                                         ])
-                                      });
+                                      }).then((value) =>
+                                              Navigator.pop(context));
                                     }
                                   } else {
                                     //notes: is where you order from diffrent restaurants
@@ -434,7 +435,8 @@ class _FoodSelectionWidgetState extends State<FoodSelectionWidget> {
                                         },
                                       ])
                                     },
-                                  );
+                                  ).then((value) => Navigator.pop(context));
+                                  ;
                                 }
                               },
                               child: Container(
