@@ -5,10 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:food_delivery_app/src/presentation/customize.dart';
 import 'package:food_delivery_app/src/utils/pallete.dart';
 import 'package:food_delivery_app/src/presentation/screens.dart';
+import 'package:heroicons/heroicons.dart';
 
 class ViewCartScreen extends StatefulWidget {
   final String userId;
-  const ViewCartScreen({Key? key, required this.userId}) : super(key: key);
+  final String restaurantId;
+  const ViewCartScreen(
+      {Key? key, required this.userId, required this.restaurantId})
+      : super(key: key);
 
   @override
   _ViewCartScreenState createState() => _ViewCartScreenState();
@@ -59,9 +63,9 @@ class _ViewCartScreenState extends State<ViewCartScreen> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Text("Loading");
           }
-          if (snapshot.hasData) {
-            print(snapshot.data?.data());
-          }
+          // if (snapshot.hasData) {
+          //   print(snapshot.data?.data());
+          // }
           final cartItem = snapshot.data!['order'];
 
           double totalCartPrice = cartItem.isEmpty
@@ -160,81 +164,198 @@ class _ViewCartScreenState extends State<ViewCartScreen> {
                                                   countColor: COLORS.white,
                                                   loading: false,
                                                   onChange: (int val) {
-                                                    setState(() {
-                                                      if (cartItem.length ==
-                                                          1) {
-                                                        if (val == 0) {
-                                                          FirebaseFirestore
-                                                              .instance
-                                                              .collection(
-                                                                  'users')
-                                                              .doc(
-                                                                  widget.userId)
-                                                              .update({
-                                                            'order': FieldValue
-                                                                .arrayRemove([
-                                                              cartItem[index]
-                                                            ]),
-                                                          }).then((value) =>
-                                                                  Navigator.of(
-                                                                          context)
-                                                                      .pop());
-                                                        } else {
-                                                          //bug fix this bug
-                                                          //update their quality
-                                                          _counterValue = val;
-                                                        }
-                                                      } else {
-                                                        if (val == 0) {
-                                                          FirebaseFirestore
-                                                              .instance
-                                                              .collection(
-                                                                  'users')
-                                                              .doc(
-                                                                  widget.userId)
-                                                              .update({
-                                                            'order': FieldValue
-                                                                .arrayRemove([
-                                                              cartItem[index]
-                                                            ]),
-                                                          });
-                                                        } else {
-                                                          print(
-                                                              cartItem[index]);
-                                                          //update their value
-                                                          //bug: fix this by today
-                                                          // FirebaseFirestore
-                                                          //     .instance
-                                                          //     .collection(
-                                                          //         "users")
-                                                          //     .doc(
-                                                          //         widget.userId)
-                                                          //     .update(
-                                                          //   {
-                                                          //     "order": FieldValue
-                                                          //         .arrayUnion(
-                                                          //       [
-                                                          //         {
+                                                    setState(
+                                                      () {
+                                                        if (cartItem.length ==
+                                                            1) {
+                                                          //Note: if value is 0
+                                                          if (val == 0) {
+                                                            FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    'users')
+                                                                .doc(widget
+                                                                    .userId)
+                                                                .update({
+                                                              'order': FieldValue
+                                                                  .arrayRemove([
+                                                                cartItem[index]
+                                                              ]),
+                                                            }).then((value) =>
+                                                                    Navigator.of(
+                                                                            context)
+                                                                        .pop());
+                                                          }
+                                                          //Note: if value is != 0
+                                                          else {
+                                                            _counterValue = val;
+                                                            // print(cartItem[
+                                                            //     index]);
+                                                            FirebaseFirestore
+                                                                .instance
+                                                                .runTransaction(
+                                                                    (transaction) async {
+                                                              DocumentReference
+                                                                  orderDocRef =
+                                                                  FirebaseFirestore
+                                                                      .instance
+                                                                      .collection(
+                                                                          "users")
+                                                                      .doc(widget
+                                                                          .userId);
 
-                                                          //         },
-                                                          //       ],
-                                                          //     )
-                                                          //   },
-                                                          // );
+                                                              DocumentSnapshot
+                                                                  orderDocSnapshot =
+                                                                  await transaction
+                                                                      .get(
+                                                                          orderDocRef);
+                                                              Map<String,
+                                                                      dynamic>
+                                                                  orderData =
+                                                                  orderDocSnapshot
+                                                                          .data()
+                                                                      as Map<
+                                                                          String,
+                                                                          dynamic>;
+
+                                                              // Update the required fields in the orderData
+                                                              List<dynamic>
+                                                                  orderItems =
+                                                                  List.from(
+                                                                      orderData[
+                                                                          'order']);
+                                                              int prevQuantity =
+                                                                  orderItems[index]
+                                                                          [
+                                                                          'orderFood'][0]
+                                                                      [
+                                                                      'quantity'];
+                                                              double
+                                                                  prevTotalPrice =
+                                                                  orderItems[index]
+                                                                          [
+                                                                          'orderFood'][0]
+                                                                      [
+                                                                      'totalPrice'];
+                                                              double
+                                                                  newTotalPrice =
+                                                                  _counterValue *
+                                                                      (prevTotalPrice /
+                                                                          prevQuantity);
+
+                                                              orderItems[index][
+                                                                          'orderFood'][0]
+                                                                      [
+                                                                      'quantity'] =
+                                                                  _counterValue;
+                                                              orderItems[index][
+                                                                          'orderFood'][0]
+                                                                      [
+                                                                      'totalPrice'] =
+                                                                  newTotalPrice;
+
+                                                              // Update the order document with the modified data
+                                                              transaction.update(
+                                                                  orderDocRef, {
+                                                                "order":
+                                                                    orderItems
+                                                              });
+                                                            });
+                                                          }
                                                         }
 
-                                                        // FirebaseFirestore
-                                                        //     .instance
-                                                        //     .collection('users')
-                                                        //     .doc(widget.userId)
-                                                        //     .update({
-                                                        //   'order': FieldValue
-                                                        //       .arrayRemove([
-                                                        //     cartItem[index]
-                                                        //   ]),
-                                                        // });
-                                                      }
-                                                    });
+                                                        //Note: if cartItem is != 0
+                                                        else {
+                                                          if (val == 0) {
+                                                            _counterValue = val;
+                                                            FirebaseFirestore
+                                                                .instance
+                                                                .collection(
+                                                                    'users')
+                                                                .doc(widget
+                                                                    .userId)
+                                                                .update({
+                                                              'order': FieldValue
+                                                                  .arrayRemove([
+                                                                cartItem[index]
+                                                              ]),
+                                                            });
+                                                          } else {
+                                                            _counterValue = val;
+                                                            FirebaseFirestore
+                                                                .instance
+                                                                .runTransaction(
+                                                                    (transaction) async {
+                                                              DocumentReference
+                                                                  orderDocRef =
+                                                                  FirebaseFirestore
+                                                                      .instance
+                                                                      .collection(
+                                                                          "users")
+                                                                      .doc(widget
+                                                                          .userId);
+
+                                                              DocumentSnapshot
+                                                                  orderDocSnapshot =
+                                                                  await transaction
+                                                                      .get(
+                                                                          orderDocRef);
+                                                              Map<String,
+                                                                      dynamic>
+                                                                  orderData =
+                                                                  orderDocSnapshot
+                                                                          .data()
+                                                                      as Map<
+                                                                          String,
+                                                                          dynamic>;
+
+                                                              // Update the required fields in the orderData
+                                                              List<dynamic>
+                                                                  orderItems =
+                                                                  List.from(
+                                                                      orderData[
+                                                                          'order']);
+                                                              int prevQuantity =
+                                                                  orderItems[index]
+                                                                          [
+                                                                          'orderFood'][0]
+                                                                      [
+                                                                      'quantity'];
+                                                              double
+                                                                  prevTotalPrice =
+                                                                  orderItems[index]
+                                                                          [
+                                                                          'orderFood'][0]
+                                                                      [
+                                                                      'totalPrice'];
+                                                              double
+                                                                  newTotalPrice =
+                                                                  _counterValue *
+                                                                      (prevTotalPrice /
+                                                                          prevQuantity);
+
+                                                              orderItems[index][
+                                                                          'orderFood'][0]
+                                                                      [
+                                                                      'quantity'] =
+                                                                  _counterValue;
+                                                              orderItems[index][
+                                                                          'orderFood'][0]
+                                                                      [
+                                                                      'totalPrice'] =
+                                                                  newTotalPrice;
+
+                                                              // Update the order document with the modified data
+                                                              transaction.update(
+                                                                  orderDocRef, {
+                                                                "order":
+                                                                    orderItems
+                                                              });
+                                                            });
+                                                          }
+                                                        }
+                                                      },
+                                                    );
                                                   },
                                                   count: _counterValue,
                                                   buttonColor: COLORS.white,
@@ -272,15 +393,271 @@ class _ViewCartScreenState extends State<ViewCartScreen> {
 
                       //review
                       Step(
-                        title: new Text("Review"),
-                        content: Column(
-                            // children: <Widget>[
-                            //   TextFormField(
-                            //     decoration:
-                            //         InputDecoration(labelText: 'Mobile Number'),
-                            //   ),
-                            // ],
-                            ),
+                        title: const Text("Review"),
+                        content: SingleChildScrollView(
+                          child: Column(
+                            children: [
+                              //first card
+                              Container(
+                                width: double.infinity,
+                                child: Card(
+                                  clipBehavior: Clip.hardEdge,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(15),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          children: const [
+                                            HeroIcon(
+                                              HeroIcons.mapPin,
+                                              color: COLORS.primary,
+                                            ),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            CustomText(
+                                              text: "Delivery Address",
+                                              size: SIZE.textSize,
+                                              color: COLORS.black,
+                                              weight: FontWeight.w500,
+                                            ),
+                                            Spacer(),
+                                            CustomText(
+                                              text: "Change",
+                                              size: SIZE.textSize,
+                                              color: COLORS.primary,
+                                              weight: FontWeight.w500,
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        Image.network(
+                                          "https://i.stack.imgur.com/B6fEt.png",
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              //second container
+                              Container(
+                                width: double.infinity,
+                                child: Card(
+                                  clipBehavior: Clip.hardEdge,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(15),
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          children: const [
+                                            HeroIcon(
+                                              HeroIcons.wallet,
+                                              color: COLORS.primary,
+                                            ),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            CustomText(
+                                              text: "Payment method",
+                                              size: SIZE.textSize,
+                                              color: COLORS.black,
+                                              weight: FontWeight.w500,
+                                            ),
+                                            Spacer(),
+                                            CustomText(
+                                              text: "Change",
+                                              size: SIZE.textSize,
+                                              color: COLORS.primary,
+                                              weight: FontWeight.w500,
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(
+                                          height: 20,
+                                        ),
+                                        Row(
+                                          children: [
+                                            Row(
+                                              children: const [
+                                                HeroIcon(
+                                                  HeroIcons.banknotes,
+                                                ),
+                                                SizedBox(
+                                                  width: 5,
+                                                ),
+                                                CustomText(
+                                                  text: "Cash",
+                                                  size: SIZE.textSize,
+                                                  color: COLORS.black,
+                                                  weight: FontWeight.w500,
+                                                ),
+                                              ],
+                                            ),
+                                            Spacer(),
+                                            CustomText(
+                                              text:
+                                                  "${totalCartPrice.toStringAsFixed(2)}\$",
+                                              size: SIZE.textSize,
+                                              color: COLORS.grey,
+                                              weight: FontWeight.w500,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+
+                              //third card
+                              Container(
+                                width: double.infinity,
+                                child: Card(
+                                  clipBehavior: Clip.hardEdge,
+                                  child: Padding(
+                                    padding: EdgeInsets.all(15),
+                                    child: Column(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: const [
+                                            Icon(
+                                              Icons.receipt,
+                                              color: COLORS.primary,
+                                            ),
+                                            SizedBox(
+                                              width: 10,
+                                            ),
+                                            CustomText(
+                                              text: "Order summary",
+                                              size: SIZE.textSize,
+                                              color: COLORS.black,
+                                              weight: FontWeight.w500,
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(
+                                          height: 15,
+                                        ),
+                                        Container(
+                                          height: cartItem.length * 55.0,
+                                          child: ListView.builder(
+                                            physics:
+                                                const NeverScrollableScrollPhysics(),
+                                            itemCount: cartItem.length,
+                                            itemBuilder: (ctx, index) {
+                                              return Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      CustomText(
+                                                        text:
+                                                            "${cartItem[index]['orderFood'][0]['quantity']}x",
+                                                        size: SIZE.textSize,
+                                                        color: COLORS.primary,
+                                                        weight: FontWeight.w500,
+                                                      ),
+                                                      const SizedBox(
+                                                        width: 10,
+                                                      ),
+                                                      SizedBox(
+                                                        width: 200,
+                                                        child: CustomText(
+                                                          text: cartItem[index][
+                                                                  'orderFood'][0]
+                                                              ['food']['name'],
+                                                          size: SIZE.textSize,
+                                                          color: COLORS.black,
+                                                          weight:
+                                                              FontWeight.w500,
+                                                        ),
+                                                      ),
+                                                      const Spacer(),
+                                                      CustomText(
+                                                        text: cartItem[index][
+                                                                        'orderFood'][0]
+                                                                    [
+                                                                    'totalPrice']
+                                                                .toStringAsFixed(
+                                                                    2) +
+                                                            " \$",
+                                                        size: SIZE.textSize,
+                                                        color: COLORS.primary,
+                                                        weight: FontWeight.w500,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(
+                                                    height: 10,
+                                                  ),
+                                                ],
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                        const Divider(
+                                          color: COLORS.heavyGrey,
+                                          height: 2,
+                                        ),
+                                        const SizedBox(
+                                          height: 15,
+                                        ),
+                                        Row(
+                                          children: [
+                                            const CustomText(
+                                              text: "Subtotal",
+                                              size: SIZE.textSize,
+                                              color: COLORS.heavyGrey,
+                                              weight: FontWeight.w500,
+                                            ),
+                                            const Spacer(),
+                                            CustomText(
+                                              text:
+                                                  "${totalCartPrice.toStringAsFixed(2)} \$",
+                                              size: SIZE.textSize,
+                                              color: COLORS.heavyGrey,
+                                              weight: FontWeight.w500,
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(
+                                          height: 10,
+                                        ),
+                                        Row(
+                                          children: const [
+                                            CustomText(
+                                              text: "Delivery fee",
+                                              size: SIZE.textSize,
+                                              color: COLORS.heavyGrey,
+                                              weight: FontWeight.w500,
+                                            ),
+                                            Spacer(),
+                                            CustomText(
+                                              text: "0 \$",
+                                              size: SIZE.textSize,
+                                              color: COLORS.heavyGrey,
+                                              weight: FontWeight.w500,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         isActive: _currentStep >= 0,
                         state: _currentStep >= 2
                             ? StepState.complete
@@ -292,7 +669,7 @@ class _ViewCartScreenState extends State<ViewCartScreen> {
                 Material(
                   elevation: 20,
                   child: Container(
-                    height: 150,
+                    height: 140,
                     padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
                     alignment: Alignment.bottomCenter,
                     child: Column(
@@ -313,7 +690,7 @@ class _ViewCartScreenState extends State<ViewCartScreen> {
                                 CustomText(
                                   text: "(incl.VAT)",
                                   size: SIZE.textSize,
-                                  color: COLORS.grey,
+                                  color: COLORS.heavyGrey,
                                   weight: FontWeight.w500,
                                 ),
                               ],
@@ -333,14 +710,35 @@ class _ViewCartScreenState extends State<ViewCartScreen> {
                         // ElevatedButton(onPressed: onPressed, child: child)
                         GestureDetector(
                           onTap: () {
-                            setState(() {
-                              // _currentStep == 1 ? _currentStep += 1 : null;
-                              _currentStep == 1
-                                  ? _currentStep += 1
-                                  : _currentStep == 2
-                                      ? print("Hello world")
-                                      : null;
-                            });
+                            setState(
+                              () {
+                                // _currentStep == 1 ? _currentStep += 1 : null;
+                                _currentStep == 1
+                                    ? _currentStep += 1
+                                    : _currentStep == 2
+                                        // ? FirebaseFirestore.instance
+                                        //     .collection("orders")
+                                        //     .add({
+                                        //     "userId": user.id,
+                                        //     "orderFood": cartItem,
+                                        //     "totalPrice": totalCartPrice,
+                                        //     "orderDate": DateTime.now(),
+                                        //     "orderStatus": "pending",
+                                        //   }).then((value) {
+                                        //     cartItem.clear();
+                                        //     totalCartPrice = 0;
+                                        //     Navigator.push(
+                                        //       context,
+                                        //       MaterialPageRoute(
+                                        //         builder: (context) =>
+                                        //             const OrderScreen(),
+                                        //       ),
+                                        //     );
+                                        //   })
+                                        ? print("hello world")
+                                        : null;
+                              },
+                            );
                           },
                           child: Container(
                             height: SIZE.buttonHeight,

@@ -196,6 +196,7 @@ class _MenuScreenState extends State<MenuScreen>
                       context,
                       MaterialPageRoute(
                         builder: (context) => ViewCartScreen(
+                          restaurantId: widget.restaurantId,
                           userId: widget.userId,
                         ),
                       ),

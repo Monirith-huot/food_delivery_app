@@ -32,6 +32,7 @@ class AuthService {
       "history": [],
       "favorite": [],
       "search": [],
+      "ordering": [],
     });
     return true;
   }
